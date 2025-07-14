@@ -7,6 +7,7 @@ import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
+import com.example.apfront.data.repository.*
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -17,4 +18,11 @@ abstract class RepositoryModule {
     abstract fun bindAuthRepository(
         authRepositoryImpl: AuthRepositoryImpl
     ): AuthRepository
+
+    // Add this function inside your RepositoryModule abstract class
+    @Binds
+    @Singleton
+    abstract fun bindRestaurantRepository(
+        restaurantRepositoryImpl: RestaurantRepositoryImpl
+    ): RestaurantRepository
 }

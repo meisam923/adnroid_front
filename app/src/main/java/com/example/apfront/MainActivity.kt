@@ -7,7 +7,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import com.example.apfront.ui.screens.auth.LoginScreen
+import com.example.apfront.ui.screens.auth.*
+import com.example.apfront.ui.screens.restaurant_dashboard.*
 import com.example.apfront.ui.theme.ApFrontTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -21,7 +22,8 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    LoginScreen()
+                    //LoginScreen()
+                    CreateRestaurantScreen()
                 }
             }
         }

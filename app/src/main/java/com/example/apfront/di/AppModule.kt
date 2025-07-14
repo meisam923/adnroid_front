@@ -1,6 +1,6 @@
 package com.example.apfront.di
 
-import com.example.apfront.data.remote.api.AuthApiService
+import com.example.apfront.data.remote.api.*
 import com.example.apfront.util.Constants
 import dagger.Module
 import dagger.Provides
@@ -27,5 +27,12 @@ object AppModule {
     @Singleton
     fun provideAuthApiService(retrofit: Retrofit): AuthApiService {
         return retrofit.create(AuthApiService::class.java)
+    }
+
+    // Add this function inside your AppModule object
+    @Provides
+    @Singleton
+    fun provideRestaurantApiService(retrofit: Retrofit): RestaurantApiService {
+        return retrofit.create(RestaurantApiService::class.java)
     }
 }

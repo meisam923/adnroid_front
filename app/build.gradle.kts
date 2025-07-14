@@ -38,6 +38,7 @@ android {
 
 dependencies {
     // ... your dependencies remain the same
+    implementation("io.coil-kt:coil-compose:2.6.0")
 
     // Make sure to add Hilt dependencies here as well
     implementation(platform(libs.androidx.compose.bom))
