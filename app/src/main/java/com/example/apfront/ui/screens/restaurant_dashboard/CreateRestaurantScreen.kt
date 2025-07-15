@@ -10,8 +10,10 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -24,6 +26,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberAsyncImagePainter
 import com.example.apfront.util.Resource
 import kotlinx.coroutines.launch
+import androidx.compose.material.icons.filled.AddPhotoAlternate
+import androidx.compose.ui.graphics.vector.PathNode
+import androidx.compose.ui.res.stringResource
+import com.example.apfront.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -60,19 +66,19 @@ fun CreateRestaurantScreen(
             .verticalScroll(rememberScrollState()), // Make the column scrollable
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("Create a New Restaurant", style = MaterialTheme.typography.headlineMedium)
+        Text(stringResource(R.string.create_restaurant_title), style = MaterialTheme.typography.headlineMedium)
         Spacer(modifier = Modifier.height(24.dp))
 
         // --- Text Inputs ---
-        OutlinedTextField(value = name, onValueChange = { name = it }, label = { Text("Restaurant Name") }, modifier = Modifier.fillMaxWidth())
+        OutlinedTextField(value = name, onValueChange = { name = it }, label = { Text(stringResource(R.string.restaurant_name_label)) }, modifier = Modifier.fillMaxWidth() ,shape = RoundedCornerShape(16.dp))
         Spacer(modifier = Modifier.height(8.dp))
-        OutlinedTextField(value = address, onValueChange = { address = it }, label = { Text("Address") }, modifier = Modifier.fillMaxWidth())
+        OutlinedTextField(value = address, onValueChange = { address = it }, label = { Text(stringResource(R.string.address_label)) }, modifier = Modifier.fillMaxWidth(),shape = RoundedCornerShape(16.dp))
         Spacer(modifier = Modifier.height(8.dp))
-        OutlinedTextField(value = phone, onValueChange = { phone = it }, label = { Text("Phone Number") }, modifier = Modifier.fillMaxWidth())
+        OutlinedTextField(value = phone, onValueChange = { phone = it }, label = { Text(stringResource(R.string.phone_label)) }, modifier = Modifier.fillMaxWidth(),shape = RoundedCornerShape(16.dp))
         Spacer(modifier = Modifier.height(8.dp))
-        OutlinedTextField(value = taxFee, onValueChange = { taxFee = it }, label = { Text("Tax Fee") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), modifier = Modifier.fillMaxWidth())
+        OutlinedTextField(value = taxFee, onValueChange = { taxFee = it }, label = { Text(stringResource(R.string.tax_fee_label)) }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), modifier = Modifier.fillMaxWidth(),shape = RoundedCornerShape(16.dp))
         Spacer(modifier = Modifier.height(8.dp))
-        OutlinedTextField(value = additionalFee, onValueChange = { additionalFee = it }, label = { Text("Additional Fee") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), modifier = Modifier.fillMaxWidth())
+        OutlinedTextField(value = additionalFee, onValueChange = { additionalFee = it }, label = { Text(stringResource(R.string.additional_fee_label)) }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), modifier = Modifier.fillMaxWidth(),shape = RoundedCornerShape(16.dp))
         Spacer(modifier = Modifier.height(16.dp))
 
         // --- Image Picker ---
@@ -89,10 +95,15 @@ fun CreateRestaurantScreen(
         Spacer(modifier = Modifier.height(8.dp))
         Button(onClick = {
             photoPickerLauncher.launch(
-                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-            )
+                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
+                )
         }) {
-            Text("Select Image")
+            Icon(
+                imageVector = Icons.Filled.AddPhotoAlternate,
+                contentDescription = "Select Image Icon"
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(stringResource(R.string.select_image_button))
         }
         Spacer(modifier = Modifier.height(24.dp))
 
@@ -113,7 +124,7 @@ fun CreateRestaurantScreen(
             enabled = createState !is Resource.Loading,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Create Restaurant")
+            Text(stringResource(R.string.create_restaurant_button))
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -122,11 +133,26 @@ fun CreateRestaurantScreen(
             is Resource.Loading -> CircularProgressIndicator()
             is Resource.Success -> {
                 LaunchedEffect(state) {
-                    Toast.makeText(context, "Restaurant '${state.data?.name}' created!", Toast.LENGTH_LONG).show()
+                    val message = context.getString(R.string.restaurant_created_toast, state.data?.name)
+                    Toast.makeText(context, message, Toast.LENGTH_LONG).show()
                 }
             }
             is Resource.Error -> {
-                Text(text = state.message ?: "An error occurred", color = MaterialTheme.colorScheme.error)
+                val errorMessage = when (state.message) {
+                    "error_400_invalid_input" -> stringResource(R.string.error_400_invalid_input)
+                    "error_401_unauthorized" -> stringResource(R.string.error_401_unauthorized)
+                    "error_403_forbidden" -> stringResource(R.string.error_403_forbidden)
+                    "error_404_not_found" -> stringResource(R.string.error_404_not_found)
+                    "error_409_conflict" -> stringResource(R.string.error_409_conflict)
+                    "error_500_server_error" -> stringResource(R.string.error_500_server_error)
+                    "error_network_connection" -> stringResource(R.string.error_network_connection)
+                    else -> stringResource(R.string.error_unknown)
+                }
+
+                Text(
+                    text = errorMessage,
+                    color = MaterialTheme.colorScheme.error
+                )
             }
             is Resource.Idle -> {}
         }

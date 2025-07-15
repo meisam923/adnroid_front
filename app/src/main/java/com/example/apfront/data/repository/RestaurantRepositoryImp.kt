@@ -17,8 +17,15 @@ class RestaurantRepositoryImpl @Inject constructor(
             if (response.isSuccessful && response.body() != null) {
                 Resource.Success(response.body()!!)
             } else {
-                Resource.Error("Error: ${response.code()} - ${response.message()}")
-            }
+                when (response.code()) {
+                    400 -> Resource.Error("error_400_invalid_input")
+                    401 -> Resource.Error("error_401_unauthorized")
+                    403 -> Resource.Error("error_403_forbidden")
+                    404 -> Resource.Error("error_404_not_found")
+                    409 -> Resource.Error("error_409_conflict")
+                    500 -> Resource.Error("error_500_server_error")
+                    else -> Resource.Error("error_unknown")
+                }            }
         } catch (e: Exception) {
             Resource.Error(e.message ?: "An unknown error occurred")
         }
