@@ -1,0 +1,21 @@
+<resources>
+    <string name="create_restaurant_title">ایجاد رستوران</string>
+    <string name="restaurant_name_label">نام رستوران</string>
+    <string name="address_label">آدرس</string>
+    <string name="phone_label">شماره تلفن</string>
+    <string name="tax_fee_label">مالیات</string>
+    <string name="additional_fee_label">هزینه اضافی</string>
+    <string name="select_image_button">انتخاب عکس</string>
+    <string name="create_restaurant_button">ساخت رستوران</string>
+    <string name="restaurant_created_toast">رستوران «%1$s» با موفقیت ساخته شد!</string>
+    <string name="generic_error">خطایی رخ داد</string>
+    <string name="app_name">\ایتس</string>
+    <string name="error_400_invalid_input">اطلاعات وارد شده نامعتبر است. لطفا فیلدها را بررسی و دوباره تلاش کنید.</string>
+    <string name="error_401_unauthorized">احراز هویت ناموفق بود. لطفا دوباره وارد شوید.</string>
+    <string name="error_403_forbidden">شما اجازه انجام این عملیات را ندارید.</string>
+    <string name="error_404_not_found">مورد درخواستی یافت نشد.</string>
+    <string name="error_409_conflict">این مورد از قبل وجود دارد. لطفا از اطلاعات دیگری استفاده کنید.</string>
+    <string name="error_500_server_error">خطایی در سرور رخ داد. لطفا بعدا دوباره تلاش کنید.</string>
+    <string name="error_network_connection">اتصال به سرور برقرار نشد. لطفا اینترنت خود را بررسی کنید.</string>
+    <string name="error_unknown">خطای ناشناخته‌ای رخ داد. لطفا دوباره تلاش کنید.</string>
+</resources>
