@@ -9,7 +9,7 @@
     <string name="create_restaurant_button">ساخت رستوران</string>
     <string name="restaurant_created_toast">رستوران «%1$s» با موفقیت ساخته شد!</string>
     <string name="generic_error">خطایی رخ داد</string>
-    <string name="app_name">\ایتس</string>
+    <string name="app_name">\پلی ایتس</string>
     <string name="error_400_invalid_input">اطلاعات وارد شده نامعتبر است. لطفا فیلدها را بررسی و دوباره تلاش کنید.</string>
     <string name="error_401_unauthorized">احراز هویت ناموفق بود. لطفا دوباره وارد شوید.</string>
     <string name="error_403_forbidden">شما اجازه انجام این عملیات را ندارید.</string>
@@ -18,4 +18,9 @@
     <string name="error_500_server_error">خطایی در سرور رخ داد. لطفا بعدا دوباره تلاش کنید.</string>
     <string name="error_network_connection">اتصال به سرور برقرار نشد. لطفا اینترنت خود را بررسی کنید.</string>
     <string name="error_unknown">خطای ناشناخته‌ای رخ داد. لطفا دوباره تلاش کنید.</string>
+    <string name="waiting_for_approval_title">در انتظار تایید</string>
+    <string name="waiting_for_approval_message">درخواست ثبت رستوران شما در حال بررسی است. پس از تایید به شما اطلاع داده خواهد شد.</string>
+    <string name="application_rejected_title">درخواست رد شد</string>
+    <string name="application_rejected_message">متاسفانه، ثبت رستوران شما در حال حاضر تایید نشد. لطفا برای اطلاعات بیشتر با پشتیبانی تماس بگیرید.</string>
+
 </resources>

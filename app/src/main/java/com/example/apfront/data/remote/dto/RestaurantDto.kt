@@ -21,5 +21,6 @@ data class RestaurantDto(
     val phone: String,
     val logoBase64: String?,
     @SerializedName("tax_fee") val taxFee: Int,
-    @SerializedName("additional_fee") val additionalFee: Int
+    @SerializedName("additional_fee") val additionalFee: Int,
+    val approvalStatus: String
 )

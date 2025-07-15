@@ -51,6 +51,7 @@ dependencies {
     implementation(libs.retrofit.converter.gson)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.material.icons.extended)
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
 }
 
 // Add this block at the end of the file for Hilt
