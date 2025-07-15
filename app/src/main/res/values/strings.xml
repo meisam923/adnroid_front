@@ -10,7 +10,7 @@
     <string name="select_image_button">Select Image</string>
     <string name="create_restaurant_button">Create Restaurant</string>
     <string name="restaurant_created_toast">Restaurant \'%1$s\' created!</string>
-
+    <string name="generic_error">َAn error occurred </string>
     <string name="error_400_invalid_input">The information provided is invalid. Please check the fields and try again.</string>
     <string name="error_401_unauthorized">Authentication failed. Please log in again.</string>
     <string name="error_403_forbidden">You do not have permission to perform this action.</string>
@@ -23,4 +23,10 @@
     <string name="waiting_for_approval_message">Your restaurant submission is under review. We will notify you once it has been approved.</string>
     <string name="application_rejected_title">Application Rejected</string>
     <string name="application_rejected_message">Unfortunately, your restaurant registration could not be approved at this time. Please contact support for more information.</string>
+    <string name="restaurants_title">Restaurants</string>
+    <string name="error_prefix">Error:</string>
+    <string name="rating_label">Rating:</string>
+    <string name="rating_not_available">N/A</string>
+    <string name="status_open">Open</string>
+    <string name="status_closed">Closed</string>
 </resources>

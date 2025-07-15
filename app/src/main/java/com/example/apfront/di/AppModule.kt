@@ -35,4 +35,11 @@ object AppModule {
     fun provideRestaurantApiService(retrofit: Retrofit): RestaurantApiService {
         return retrofit.create(RestaurantApiService::class.java)
     }
+
+    @Provides
+    @Singleton
+    fun provideVendorApiService(retrofit: Retrofit): VendorApiService {
+        return retrofit.create(VendorApiService::class.java)
+    }
+
 }

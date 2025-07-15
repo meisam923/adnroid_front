@@ -9,10 +9,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-// Represents the initial state of the app
+// FIX 1: Update AppStartState to hold the user's role upon login.
 sealed interface AppStartState {
     object Loading : AppStartState
-    object UserLoggedIn : AppStartState
+    data class UserLoggedIn(val role: String) : AppStartState // Changed from object to data class
     object UserLoggedOut : AppStartState
 }
 
@@ -30,11 +30,16 @@ class MainViewModel @Inject constructor(
 
     private fun checkLoginStatus() {
         viewModelScope.launch {
-            // Check if a token exists in our session manager
-            if (sessionManager.getAuthToken().isNullOrEmpty()) {
+            val token = sessionManager.getAuthToken()
+            // FIX 2: Get the user's role from the session manager.
+            val role = sessionManager.getUserRole()
+
+            // FIX 3: Check for both token and role.
+            if (token.isNullOrEmpty() || role.isNullOrEmpty()) {
                 _startState.value = AppStartState.UserLoggedOut
             } else {
-                _startState.value = AppStartState.UserLoggedIn
+                // If both exist, emit the LoggedIn state with the role.
+                _startState.value = AppStartState.UserLoggedIn(role)
             }
         }
     }
