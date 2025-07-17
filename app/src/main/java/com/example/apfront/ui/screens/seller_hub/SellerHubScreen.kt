@@ -3,12 +3,15 @@ package com.example.apfront.ui.screens.seller_hub
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.example.apfront.R
 import com.example.apfront.ui.screens.restaurant_dashboard.CreateRestaurantScreen
 import com.example.apfront.ui.screens.restaurant_dashboard.RestaurantManagementScreen
 
@@ -54,8 +57,21 @@ fun SellerHubScreen(
             }
             is SellerHubUiState.Error -> {
                 // Here you would use your translated error message logic
-                Text("An error occurred: ${state.message}")
-            }
+                val errorMessage = when (state.message) {
+                    "error_400_invalid_input" -> stringResource(com.example.apfront.R.string.error_400_invalid_input)
+                    "error_401_unauthorized" -> stringResource(com.example.apfront.R.string.error_401_unauthorized)
+                    "error_403_forbidden" -> stringResource(com.example.apfront.R.string.error_403_forbidden)
+                    "error_404_not_found" -> stringResource(com.example.apfront.R.string.error_404_not_found)
+                    "error_409_conflict" -> stringResource(com.example.apfront.R.string.error_409_conflict)
+                    "error_500_server_error" -> stringResource(com.example.apfront.R.string.error_500_server_error)
+                    "error_network_connection" -> stringResource(com.example.apfront.R.string.error_network_connection)
+                    else -> stringResource(R.string.error_unknown)
+                }
+
+                Text(
+                    text = errorMessage,
+                    color = MaterialTheme.colorScheme.error
+                )            }
         }
     }
 }

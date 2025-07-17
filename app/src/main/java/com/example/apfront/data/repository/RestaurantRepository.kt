@@ -11,4 +11,10 @@ interface RestaurantRepository {
     ): Resource<RestaurantDto>
 
     suspend fun getMyRestaurant(token: String): Resource<List<RestaurantDto>>
+    suspend fun updateRestaurant(
+        token: String,
+        restaurantId: Int,
+        request: CreateRestaurantRequest
+    ): Resource<RestaurantDto>
+
 }

@@ -7,6 +7,8 @@ import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
+import retrofit2.http.PUT
+import retrofit2.http.Path
 
 interface RestaurantApiService {
     @POST("restaurants")
@@ -19,4 +21,11 @@ interface RestaurantApiService {
     suspend fun getMyRestaurant(
         @Header("Authorization") token: String
     ): Response<List<RestaurantDto>>
+
+    @PUT("restaurants/{id}")
+    suspend fun updateRestaurant(
+        @Header("Authorization") token: String,
+        @Path("id") restaurantId: Int,
+        @Body request: CreateRestaurantRequest // Reusing the DTO from creating
+    ): Response<RestaurantDto>
 }

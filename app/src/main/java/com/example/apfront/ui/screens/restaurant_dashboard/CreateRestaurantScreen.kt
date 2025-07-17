@@ -30,6 +30,7 @@ import androidx.compose.material.icons.filled.AddPhotoAlternate
 import androidx.compose.ui.graphics.vector.PathNode
 import androidx.compose.ui.res.stringResource
 import com.example.apfront.R
+import com.example.apfront.util.uriToBase64
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -117,7 +118,7 @@ fun CreateRestaurantScreen(
 
                 // Launch a coroutine to handle Base64 conversion
                 coroutineScope.launch {
-                    val logoBase64 = selectedImageUri?.let { uriToBase64(context, it) }
+                    val logoBase64 :String? = selectedImageUri?.let { uriToBase64(context, it) }
                     viewModel.createRestaurant(token, name, address, phone, tax, additional, logoBase64)
                 }
             },
@@ -160,14 +161,3 @@ fun CreateRestaurantScreen(
 }
 
 // Helper function to convert a Uri to a Base64 string
-private fun uriToBase64(context: Context, uri: Uri): String? {
-    return try {
-        val inputStream = context.contentResolver.openInputStream(uri)
-        val bytes = inputStream?.readBytes()
-        inputStream?.close()
-        bytes?.let { Base64.encodeToString(it, Base64.DEFAULT) }
-    } catch (e: Exception) {
-        e.printStackTrace()
-        null
-    }
-}
