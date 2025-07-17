@@ -33,11 +33,9 @@ class SessionManager @Inject constructor(@ApplicationContext context: Context) {
         return prefs.getString(REFRESH_TOKEN, null)
     }
 
-    // --- ADD THIS METHOD ---
     fun getUserRole(): String? {
         return prefs.getString(USER_ROLE, null)
     }
-    // --- END OF ADDITION ---
 
     fun clearSession() {
         val editor = prefs.edit()

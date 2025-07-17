@@ -81,7 +81,6 @@ fun AppNavHost(startDestination: String) {
     ) {
         composable(route = "login") {
             LoginScreen(
-                // Add a new callback to navigate to the register screen
                 onNavigateToRegister = {
                     navController.navigate("register")
                 },

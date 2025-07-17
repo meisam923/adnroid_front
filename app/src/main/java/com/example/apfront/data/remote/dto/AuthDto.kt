@@ -32,7 +32,6 @@ data class BankInfoDto(
     @SerializedName("bank_name") val bankName: String,
     @SerializedName("account_number") val accountNumber: String
 )
-// --- Register ---
 data class RegisterRequest(
     @SerializedName("full_name") val fullName: String,
     val phone: String,

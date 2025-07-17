@@ -22,7 +22,7 @@ data class VendorListUiState(
 @HiltViewModel
 class VendorListViewModel @Inject constructor(
     private val repository: VendorRepository,
-    private val sessionManager: SessionManager // Inject SessionManager
+    private val sessionManager: SessionManager
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(VendorListUiState())
@@ -55,13 +55,10 @@ class VendorListViewModel @Inject constructor(
         }
     }
 
-    // --- FIX: This function now only clears the session data. ---
-    // The navigation logic is handled by the UI.
     fun logout() {
         viewModelScope.launch {
             sessionManager.clearSession()
             println("Session cleared successfully.")
         }
     }
-    // --- END OF FIX ---
 }

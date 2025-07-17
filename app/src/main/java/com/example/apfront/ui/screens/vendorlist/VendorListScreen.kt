@@ -30,7 +30,7 @@ fun VendorListScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(id = R.string.restaurants_title)) }, // Use string resource
+                title = { Text(stringResource(id = R.string.restaurants_title)) },
                 actions = {
                     IconButton(onClick = {
                         viewModel.logout()
@@ -42,7 +42,7 @@ fun VendorListScreen(
                     }) {
                         Icon(
                             imageVector = Icons.Default.Logout,
-                            contentDescription = "Logout" // Content descriptions can also be string resources
+                            contentDescription = "Logout"
                         )
                     }
                 }
@@ -58,7 +58,6 @@ fun VendorListScreen(
             if (uiState.isLoading) {
                 CircularProgressIndicator()
             } else if (uiState.error != null) {
-                // Use string resource for the error prefix
                 Text(
                     text = "${stringResource(id = R.string.error_prefix)} ${uiState.error}",
                     color = MaterialTheme.colorScheme.error
@@ -70,11 +69,10 @@ fun VendorListScreen(
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     items(uiState.restaurants) { restaurant ->
-                        // FIX: Pass the onClick lambda to the RestaurantCard
+
                         RestaurantCard(
                             restaurant = restaurant,
                             onClick = {
-                                // Navigate to the detail screen, passing the restaurant's ID
                                 navController.navigate("restaurant_detail/${restaurant.id}")
                             }
                         )
@@ -87,7 +85,6 @@ fun VendorListScreen(
 
 @Composable
 fun RestaurantCard(restaurant: VendorRestaurantDto, onClick: () -> Unit) {
-    // FIX: Add the onClick parameter and make the card clickable
     Card(
         modifier = Modifier
             .fillMaxWidth()
