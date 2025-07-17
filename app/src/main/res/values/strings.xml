@@ -1,10 +1,13 @@
 <resources>
     <string name="app_name">PolyEATS</string>
-
+    <string name="login">Login</string>
+    <string name="login_button">Log in</string>
+    <string name="sign_up_button">Don\'t have an account? Register</string>
     <string name="create_restaurant_title">Create a New Restaurant</string>
     <string name="restaurant_name_label">Restaurant Name</string>
     <string name="address_label">Address</string>
     <string name="phone_label">Phone Number</string>
+    <string name="password">Password</string>
     <string name="tax_fee_label">Tax Fee</string>
     <string name="additional_fee_label">Additional Fee</string>
     <string name="select_image_button">Select Image</string>

@@ -1,13 +1,16 @@
 package com.example.apfront.ui.screens.auth
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.apfront.R
 import com.example.apfront.util.Resource
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -38,23 +41,25 @@ fun LoginScreen(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("Login", style = MaterialTheme.typography.headlineLarge)
+        Text(stringResource(R.string.login), style = MaterialTheme.typography.headlineLarge)
         Spacer(modifier = Modifier.height(32.dp))
 
         OutlinedTextField(
             value = phone,
             onValueChange = { phone = it },
-            label = { Text("Phone Number") },
-            modifier = Modifier.fillMaxWidth()
+            label = { Text(stringResource(R.string.phone_label)) },
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(16.dp)
         )
         Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedTextField(
             value = password,
             onValueChange = { password = it },
-            label = { Text("Password") },
+            label = { Text(stringResource(R.string.password)) },
             modifier = Modifier.fillMaxWidth(),
-            visualTransformation = PasswordVisualTransformation()
+            visualTransformation = PasswordVisualTransformation(),
+            shape = RoundedCornerShape(16.dp)
         )
         Spacer(modifier = Modifier.height(32.dp))
 
@@ -77,12 +82,12 @@ fun LoginScreen(
             modifier = Modifier.fillMaxWidth(),
             enabled = loginState !is Resource.Loading
         ) {
-            Text("Log In")
+            Text(stringResource(R.string.login_button))
         }
 
         // This button will now work correctly
         TextButton(onClick = onNavigateToRegister) {
-            Text("Don't have an account? Register")
+            Text(stringResource(R.string.sign_up_button))
         }
     }
 }

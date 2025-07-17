@@ -1,8 +1,12 @@
 <resources>
+    <string name="login">ورود</string>
+    <string name="login_button">ورود</string>
+    <string name="sign_up_button">حسابی ندارید ؟ ایجاد حساب</string>
     <string name="create_restaurant_title">ایجاد رستوران</string>
     <string name="restaurant_name_label">نام رستوران</string>
     <string name="address_label">آدرس</string>
     <string name="phone_label">شماره تلفن</string>
+    <string name="password">رمز</string>
     <string name="tax_fee_label">مالیات</string>
     <string name="additional_fee_label">هزینه اضافی</string>
     <string name="select_image_button">انتخاب عکس</string>
