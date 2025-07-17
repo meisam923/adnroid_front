@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">apFront</string>
+    <string name="app_name">PolyEATS</string>
 
     <string name="create_restaurant_title">Create a New Restaurant</string>
     <string name="restaurant_name_label">Restaurant Name</string>

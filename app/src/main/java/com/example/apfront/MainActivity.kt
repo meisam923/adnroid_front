@@ -16,11 +16,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.apfront.ui.screens.auth.LoginScreen
 import com.example.apfront.ui.screens.auth.RegisterScreen
+import com.example.apfront.ui.screens.restaurantdetail.RestaurantDetailScreen
 import com.example.apfront.ui.screens.seller_hub.SellerHubScreen
 import com.example.apfront.ui.screens.vendorlist.VendorListScreen
 import com.example.apfront.ui.theme.ApFrontTheme
@@ -91,7 +94,6 @@ fun AppNavHost(startDestination: String) {
             )
         }
 
-        // --- REPLACE THE PLACEHOLDER WITH THE REAL SCREEN ---
         composable(route = "register") {
             RegisterScreen(
                 onRegisterSuccess = { role ->
@@ -102,7 +104,12 @@ fun AppNavHost(startDestination: String) {
                 }
             )
         }
-        // --- END OF CHANGE ---
+        composable(
+            route = "restaurant_detail/{restaurantId}",
+            arguments = listOf(navArgument("restaurantId") { type = NavType.IntType })
+        ) {
+            RestaurantDetailScreen()
+        }
 
         composable(route = "seller_hub") {
             SellerHubScreen(navController = navController)

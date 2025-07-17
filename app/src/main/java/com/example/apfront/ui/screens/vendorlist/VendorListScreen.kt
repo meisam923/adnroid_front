@@ -1,5 +1,6 @@
 package com.example.apfront.ui.screens.vendorlist
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -15,7 +16,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.example.apfront.R // Import your app's R class
+import com.example.apfront.R
 import com.example.apfront.data.remote.dto.VendorRestaurantDto
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -29,16 +30,11 @@ fun VendorListScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Restaurants") },
+                title = { Text(stringResource(id = R.string.restaurants_title)) }, // Use string resource
                 actions = {
-                    // --- FIX: The onClick now handles both logic and navigation ---
                     IconButton(onClick = {
-                        // 1. Tell the ViewModel to clear the session data
                         viewModel.logout()
-                        // 2. Navigate back to the login screen and clear the history
                         navController.navigate("login") {
-                            // This removes all screens from the back stack, so the user
-                            // can't press the back button to get back to this screen.
                             popUpTo(navController.graph.startDestinationId) {
                                 inclusive = true
                             }
@@ -46,22 +42,27 @@ fun VendorListScreen(
                     }) {
                         Icon(
                             imageVector = Icons.Default.Logout,
-                            contentDescription = "Logout"
+                            contentDescription = "Logout" // Content descriptions can also be string resources
                         )
                     }
-                    // --- END OF FIX ---
                 }
             )
         }
     ) { paddingValues ->
         Box(
-            modifier = Modifier.fillMaxSize().padding(paddingValues),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues),
             contentAlignment = Alignment.Center
         ) {
             if (uiState.isLoading) {
                 CircularProgressIndicator()
             } else if (uiState.error != null) {
-                Text(text = "Error: ${uiState.error}", color = MaterialTheme.colorScheme.error)
+                // Use string resource for the error prefix
+                Text(
+                    text = "${stringResource(id = R.string.error_prefix)} ${uiState.error}",
+                    color = MaterialTheme.colorScheme.error
+                )
             } else {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
@@ -69,7 +70,14 @@ fun VendorListScreen(
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     items(uiState.restaurants) { restaurant ->
-                        RestaurantCard(restaurant = restaurant)
+                        // FIX: Pass the onClick lambda to the RestaurantCard
+                        RestaurantCard(
+                            restaurant = restaurant,
+                            onClick = {
+                                // Navigate to the detail screen, passing the restaurant's ID
+                                navController.navigate("restaurant_detail/${restaurant.id}")
+                            }
+                        )
                     }
                 }
             }
@@ -78,9 +86,12 @@ fun VendorListScreen(
 }
 
 @Composable
-fun RestaurantCard(restaurant: VendorRestaurantDto) {
+fun RestaurantCard(restaurant: VendorRestaurantDto, onClick: () -> Unit) {
+    // FIX: Add the onClick parameter and make the card clickable
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -89,7 +100,7 @@ fun RestaurantCard(restaurant: VendorRestaurantDto) {
             Text(text = restaurant.address, style = MaterialTheme.typography.bodyMedium)
             Spacer(modifier = Modifier.height(8.dp))
             Row {
-                // FIX: Use string resources for rating label and status
+                // FIX: Use string resources for all text
                 val ratingText = restaurant.rating?.toString() ?: stringResource(id = R.string.rating_not_available)
                 Text(
                     text = "${stringResource(id = R.string.rating_label)} $ratingText",
