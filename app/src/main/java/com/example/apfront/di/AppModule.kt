@@ -1,11 +1,14 @@
 package com.example.apfront.di
 
+import com.example.apfront.data.remote.AuthAuthenticator
 import com.example.apfront.data.remote.api.*
 import com.example.apfront.util.Constants
+import com.example.apfront.util.SessionManager
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
@@ -14,22 +17,46 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object AppModule {
 
+    // 1. This provides the Authenticator itself.
     @Provides
     @Singleton
-    fun provideRetrofit(): Retrofit {
+    fun provideAuthAuthenticator(
+        sessionManager: SessionManager,
+        tokenRefreshApiService: TokenRefreshApiService
+    ): AuthAuthenticator {
+        return AuthAuthenticator(sessionManager, tokenRefreshApiService)
+    }
+
+    // 2. This provides the custom OkHttpClient that USES the Authenticator.
+    @Provides
+    @Singleton
+    fun provideOkHttpClient(
+        authenticator: AuthAuthenticator
+    ): OkHttpClient {
+        return OkHttpClient.Builder()
+            .authenticator(authenticator)
+            .build()
+    }
+
+    // 3. This is your main Retrofit instance. It now uses the custom OkHttpClient.
+    @Provides
+    @Singleton
+    fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder()
             .baseUrl(Constants.BASE_URL)
+            .client(okHttpClient) // Use the client with the authenticator
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
 
+    // 4. All your normal API services will now automatically use the main Retrofit instance,
+    // which means they all get the benefit of the automatic token refresh.
     @Provides
     @Singleton
     fun provideAuthApiService(retrofit: Retrofit): AuthApiService {
         return retrofit.create(AuthApiService::class.java)
     }
 
-    // Add this function inside your AppModule object
     @Provides
     @Singleton
     fun provideRestaurantApiService(retrofit: Retrofit): RestaurantApiService {
@@ -42,4 +69,13 @@ object AppModule {
         return retrofit.create(VendorApiService::class.java)
     }
 
+    @Provides
+    @Singleton
+    fun provideTokenRefreshApiService(): TokenRefreshApiService {
+        return Retrofit.Builder()
+            .baseUrl(Constants.BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(TokenRefreshApiService::class.java)
+    }
 }

@@ -3,6 +3,9 @@ package com.example.apfront.ui.screens.restaurantdetail
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -23,6 +26,25 @@ fun RestaurantDetailScreen(
     Scaffold(
         topBar = {
             TopAppBar(title = { Text(uiState.restaurantDetails?.vendor?.name ?: "Loading...") })
+        },
+        bottomBar = {
+            if (uiState.cart.isNotEmpty()) {
+                BottomAppBar {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "${uiState.cart.sumOf { it.quantity }} items",
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                        Button(onClick = { /* TODO: Navigate to checkout screen */ }) {
+                            Text(text = "Order Now - $${"%.2f".format(uiState.cartTotal)}")
+                        }
+                    }
+                }
+            }
         }
     ) { paddingValues ->
         Box(
@@ -39,9 +61,7 @@ fun RestaurantDetailScreen(
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(16.dp)
                 ) {
-                    // Display each menu and its items
                     details.menuTitles.forEach { menuTitle ->
-                        // Menu Title Header
                         item {
                             Text(
                                 text = menuTitle,
@@ -49,9 +69,13 @@ fun RestaurantDetailScreen(
                                 modifier = Modifier.padding(vertical = 8.dp)
                             )
                         }
-                        // List of items for this menu
                         items(details.menus[menuTitle] ?: emptyList()) { foodItem ->
-                            FoodItemRow(item = foodItem)
+                            FoodItemRow(
+                                item = foodItem,
+                                quantityInCart = uiState.cart.find { it.item.id == foodItem.id }?.quantity ?: 0,
+                                onAddItem = { viewModel.onAddItem(foodItem) },
+                                onRemoveItem = { viewModel.onRemoveItem(foodItem) }
+                            )
                             Divider()
                         }
                     }
@@ -62,18 +86,32 @@ fun RestaurantDetailScreen(
 }
 
 @Composable
-fun FoodItemRow(item: FoodItemDto) {
+fun FoodItemRow(
+    item: FoodItemDto,
+    quantityInCart: Int,
+    onAddItem: () -> Unit,
+    onRemoveItem: () -> Unit
+) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 12.dp),
+        modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(modifier = Modifier.weight(1f)) {
             Text(text = item.name, style = MaterialTheme.typography.titleMedium)
             Text(text = item.description, style = MaterialTheme.typography.bodyMedium)
+            Text(text = "$${item.price}", style = MaterialTheme.typography.bodyLarge, modifier = Modifier.padding(top = 4.dp))
         }
-        Spacer(modifier = Modifier.width(16.dp))
-        Text(text = "$${item.price}", style = MaterialTheme.typography.bodyLarge)
+
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            if (quantityInCart > 0) {
+                IconButton(onClick = onRemoveItem) {
+                    Icon(imageVector = Icons.Default.Remove, contentDescription = "Remove one")
+                }
+                Text(text = "$quantityInCart", modifier = Modifier.padding(horizontal = 8.dp))
+            }
+            IconButton(onClick = onAddItem) {
+                Icon(imageVector = Icons.Default.Add, contentDescription = "Add one")
+            }
+        }
     }
 }

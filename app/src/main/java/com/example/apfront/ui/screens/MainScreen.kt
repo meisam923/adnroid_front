@@ -4,19 +4,24 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.*
+import androidx.navigation.navArgument
+import com.example.apfront.MainViewModel
 import com.example.apfront.ui.navigation.BottomNavItem
 import com.example.apfront.ui.screens.profile.ProfileScreen
+import com.example.apfront.ui.screens.restaurantdetail.RestaurantDetailScreen
 import com.example.apfront.ui.screens.seller_hub.SellerHubScreen
 import com.example.apfront.ui.screens.vendorlist.VendorListScreen
 
 @Composable
 fun MainScreen(
-    userRole: String, // The user's role is now passed in as a parameter
-    rootNavController: NavHostController // The navigator that can go back to the login screen
+    userRole: String,
+    rootNavController: NavHostController
 ) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -53,23 +58,27 @@ fun MainScreen(
             Modifier.padding(innerPadding)
         ) {
             composable(BottomNavItem.Home.route) {
-                // Show the correct "home" screen based on the user's role
                 when (userRole.uppercase()) {
                     "SELLER" -> SellerHubScreen(navController = navController)
                     "BUYER" -> VendorListScreen(navController = navController)
-                    else -> { /* Optional: Show a loading or error screen for other roles */ }
                 }
             }
             composable(BottomNavItem.Profile.route) {
                 ProfileScreen(
                     navController = navController,
                     onLogout = {
-                        // On logout, use the root navigator to go back to the login screen
                         rootNavController.navigate("login") {
-                            popUpTo(0) // Clear the entire app's back stack
+                            popUpTo(0)
                         }
                     }
                 )
+            }
+
+            composable(
+                route = "restaurant_detail/{restaurantId}",
+                arguments = listOf(navArgument("restaurantId") { type = NavType.IntType })
+            ) {
+                RestaurantDetailScreen()
             }
         }
     }

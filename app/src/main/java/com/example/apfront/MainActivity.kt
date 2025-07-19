@@ -17,11 +17,14 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.*
+import androidx.navigation.navArgument
 import com.example.apfront.ui.navigation.BottomNavItem
 import com.example.apfront.ui.screens.auth.LoginScreen
 import com.example.apfront.ui.screens.auth.RegisterScreen
 import com.example.apfront.ui.screens.profile.ProfileScreen
+import com.example.apfront.ui.screens.restaurantdetail.RestaurantDetailScreen
 import com.example.apfront.ui.screens.seller_hub.SellerHubScreen
 import com.example.apfront.ui.screens.vendorlist.VendorListScreen
 import com.example.apfront.ui.theme.ApFrontTheme
@@ -37,31 +40,55 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    // The root of our app's UI
-                    AppEntry()
+                    // This is the single entry point for the app's entire UI
+                    AppNavigation()
                 }
             }
         }
     }
 }
 
+/**
+ * This is the top-level router for the application. It decides whether to show
+ * the authentication flow (login/register) or the main, logged-in flow.
+ */
 @Composable
-fun AppEntry(
+fun AppNavigation(
     viewModel: MainViewModel = hiltViewModel()
 ) {
     val startState by viewModel.startState.collectAsState()
     val navController = rememberNavController()
 
-    // This is the main router for the entire application.
-    // It decides whether to show the "logged out" flow or the "logged in" flow.
-    NavHost(navController = navController, startDestination = "auth_flow") {
+    NavHost(navController = navController, startDestination = "splash") {
 
-        // The "auth_flow" contains the Login and Register screens
+        // A temporary "splash" screen to decide the first real screen
+        composable("splash") {
+            LaunchedEffect(startState) {
+                when (val state = startState) {
+                    is AppStartState.UserLoggedIn -> {
+                        // If user is already logged in, go to the main flow
+                        navController.navigate("main_flow/${state.role}") {
+                            popUpTo("splash") { inclusive = true }
+                        }
+                    }
+                    is AppStartState.UserLoggedOut -> {
+                        // If logged out, go to the authentication flow
+                        navController.navigate("auth_flow") {
+                            popUpTo("splash") { inclusive = true }
+                        }
+                    }
+                    is AppStartState.Loading -> { /* Wait for state change */ }
+                }
+            }
+            Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
+                CircularProgressIndicator()
+            }
+        }
+
         navigation(startDestination = "login", route = "auth_flow") {
             composable("login") {
                 LoginScreen(
                     onLoginSuccess = { role ->
-                        // After login, navigate to the main flow and clear the auth flow from history
                         navController.navigate("main_flow/$role") {
                             popUpTo("auth_flow") { inclusive = true }
                         }
@@ -80,29 +107,16 @@ fun AppEntry(
             }
         }
 
-        // The "main_flow" is a single destination that holds our entire logged-in experience
         composable("main_flow/{userRole}") { backStackEntry ->
             val userRole = backStackEntry.arguments?.getString("userRole") ?: "BUYER"
-            MainScreen(userRole = userRole, onLogout = {
-                // When the user logs out from the MainScreen, navigate back to the auth flow
-                navController.navigate("auth_flow") {
-                    popUpTo("main_flow/{userRole}") { inclusive = true }
+            MainScreen(
+                userRole = userRole,
+                onLogout = {
+                    navController.navigate("auth_flow") {
+                        popUpTo("main_flow/{userRole}") { inclusive = true }
+                    }
                 }
-            })
-        }
-    }
-
-    // This effect runs when the app starts to check the initial login state
-    LaunchedEffect(startState) {
-        when (val state = startState) {
-            is AppStartState.UserLoggedIn -> {
-                // If already logged in, go directly to the main flow
-                navController.navigate("main_flow/${state.role}") {
-                    popUpTo("auth_flow") { inclusive = true }
-                }
-            }
-            // If loading or logged out, the NavHost will correctly start at the "auth_flow"
-            else -> {}
+            )
         }
     }
 }
@@ -110,13 +124,13 @@ fun AppEntry(
 @Composable
 fun MainScreen(
     userRole: String,
-    onLogout: () -> Unit // Callback to signal a logout event
+    onLogout: () -> Unit
 ) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
-    val items = listOf(
+    val bottomNavItems = listOf(
         BottomNavItem.Home,
         BottomNavItem.Profile,
     )
@@ -124,7 +138,7 @@ fun MainScreen(
     Scaffold(
         bottomBar = {
             NavigationBar {
-                items.forEach { screen ->
+                bottomNavItems.forEach { screen ->
                     NavigationBarItem(
                         icon = { Icon(screen.icon, contentDescription = screen.label) },
                         label = { Text(screen.label) },
@@ -141,7 +155,6 @@ fun MainScreen(
             }
         }
     ) { innerPadding ->
-        // This is the inner NavHost for the screens accessible via the bottom bar.
         NavHost(
             navController,
             startDestination = BottomNavItem.Home.route,
@@ -151,13 +164,20 @@ fun MainScreen(
                 when (userRole.uppercase()) {
                     "SELLER" -> SellerHubScreen(navController = navController)
                     "BUYER" -> VendorListScreen(navController = navController)
+                    else -> Text("Unknown user role")
                 }
             }
             composable(BottomNavItem.Profile.route) {
                 ProfileScreen(
                     navController = navController,
-                    onLogout = onLogout // Pass the logout callback down
+                    onLogout = onLogout
                 )
+            }
+            composable(
+                route = "restaurant_detail/{restaurantId}",
+                arguments = listOf(navArgument("restaurantId") { type = NavType.IntType })
+            ) {
+                RestaurantDetailScreen()
             }
         }
     }
