@@ -1,16 +1,13 @@
 package com.example.apfront.data.remote.api
 
-import com.example.apfront.data.remote.dto.CreateRestaurantRequest
-import com.example.apfront.data.remote.dto.RestaurantDto
+import com.example.apfront.data.remote.dto.*
 import retrofit2.Response
-import retrofit2.http.Body
-import retrofit2.http.GET
-import retrofit2.http.Header
-import retrofit2.http.POST
-import retrofit2.http.PUT
-import retrofit2.http.Path
+import retrofit2.http.*
 
 interface RestaurantApiService {
+
+    // --- Restaurant Management ---
+
     @POST("restaurants")
     suspend fun createRestaurant(
         @Header("Authorization") token: String,
@@ -26,6 +23,79 @@ interface RestaurantApiService {
     suspend fun updateRestaurant(
         @Header("Authorization") token: String,
         @Path("id") restaurantId: Int,
-        @Body request: CreateRestaurantRequest // Reusing the DTO from creating
+        @Body request: CreateRestaurantRequest
     ): Response<RestaurantDto>
+
+    // --- Item & Menu Fetching ---
+
+    @GET("vendors/{id}")
+    suspend fun getVendorMenu(
+        @Header("Authorization") token: String,
+        @Path("id") restaurantId: Int
+    ): Response<VendorMenuResponse>
+
+    // --- Item Management ---
+
+    @POST("restaurants/{id}/item")
+    suspend fun addFoodItem(
+        @Header("Authorization") token: String,
+        @Path("id") restaurantId: Int,
+        @Body request: CreateItemRequest
+    ): Response<ItemDto>
+
+    @PUT("restaurants/{id}/item/{item_id}")
+    suspend fun updateFoodItem(
+        @Header("Authorization") token: String,
+        @Path("id") restaurantId: Int,
+        @Path("item_id") itemId: Int,
+        @Body request: CreateItemRequest
+    ): Response<ItemDto>
+
+    @DELETE("restaurants/{id}/item/{item_id}")
+    suspend fun deleteFoodItem(
+        @Header("Authorization") token: String,
+        @Path("id") restaurantId: Int,
+        @Path("item_id") itemId: Int
+    ): Response<Unit>
+
+    // --- Menu Category Management ---
+
+    @POST("restaurants/{id}/menu")
+    suspend fun createMenuCategory(
+        @Header("Authorization") token: String,
+        @Path("id") restaurantId: Int,
+        @Body request: CreateMenuRequest
+    ): Response<Unit> // Assuming no specific response body
+
+    @PUT("restaurants/{id}/menu/{title}")
+    suspend fun addItemToMenu(
+        @Header("Authorization") token: String,
+        @Path("id") restaurantId: Int,
+        @Path("title") menuTitle: String,
+        @Body request: AddItemToMenuRequest
+    ): Response<Unit>
+
+    @DELETE("restaurants/{id}/menu/{title}/{item_id}")
+    suspend fun removeItemFromMenu(
+        @Header("Authorization") token: String,
+        @Path("id") restaurantId: Int,
+        @Path("title") menuTitle: String,
+        @Path("item_id") itemId: Int
+    ): Response<Unit>
+
+    // --- Order Management ---
+
+    @GET("restaurants/{id}/orders")
+    suspend fun getRestaurantOrders(
+        @Header("Authorization") token: String,
+        @Path("id") restaurantId: Int,
+        @Query("status") status: String? // To filter by status (e.g., "accepted")
+    ): Response<List<OrderDto>>
+
+    @PATCH("restaurants/orders/{order_id}")
+    suspend fun updateOrderStatus(
+        @Header("Authorization") token: String,
+        @Path("order_id") orderId: Int,
+        @Body request: UpdateOrderStatusRequest
+    ): Response<Unit>
 }

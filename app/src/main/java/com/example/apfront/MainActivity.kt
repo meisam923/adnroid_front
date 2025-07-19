@@ -24,6 +24,7 @@ import com.example.apfront.ui.navigation.BottomNavItem
 import com.example.apfront.ui.screens.auth.LoginScreen
 import com.example.apfront.ui.screens.auth.RegisterScreen
 import com.example.apfront.ui.screens.profile.ProfileScreen
+import com.example.apfront.ui.screens.restaurant_dashboard.CreateEditItemScreen
 import com.example.apfront.ui.screens.restaurantdetail.RestaurantDetailScreen
 import com.example.apfront.ui.screens.seller_hub.SellerHubScreen
 import com.example.apfront.ui.screens.vendorlist.VendorListScreen
@@ -178,6 +179,19 @@ fun MainScreen(
                 arguments = listOf(navArgument("restaurantId") { type = NavType.IntType })
             ) {
                 RestaurantDetailScreen()
+            }
+            composable(
+                route = "create_edit_item/{restaurantId}?itemId={itemId}",
+                arguments = listOf(
+                    navArgument("restaurantId") { type = NavType.IntType },
+                    navArgument("itemId") { type = NavType.IntType; defaultValue = -1 }
+                )
+            ) { backStackEntry ->
+                val restaurantId = backStackEntry.arguments?.getInt("restaurantId") ?: 0
+                CreateEditItemScreen(
+                    navController = navController,
+                    restaurantId = restaurantId
+                )
             }
         }
     }

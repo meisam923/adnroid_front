@@ -33,4 +33,7 @@
     <string name="status_open">Open</string>
     <string name="status_closed">Closed</string>
     <string name="change_image_button">Change Logo</string>
+    <string name="tab_all_items">All Items</string>
+    <string name="tab_menu_categories">Menu Categories</string>
+    <string name="add_new_item">Add New Item</string>
 </resources>

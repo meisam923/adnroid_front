@@ -32,5 +32,8 @@
     <string name="rating_not_available">ثبت نشده</string>
     <string name="status_open">باز</string>
     <string name="status_closed">بسته</string>
-    <string name="change_image_button">تغییر لوگو</string>
+    <string name="change_image_button">تغییر تصویر</string>
+    <string name="tab_all_items">همه موارد</string>
+    <string name="tab_menu_categories">دسته‌بندی‌های منو</string>
+    <string name="add_new_item">افزودن مورد جدید</string>
 </resources>

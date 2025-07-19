@@ -6,11 +6,15 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.example.apfront.data.remote.dto.RestaurantDto
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RestaurantManagementScreen(restaurant: RestaurantDto) {
+fun RestaurantManagementScreen(restaurant: RestaurantDto,
+navController : NavController
+) {
     var selectedTabIndex by remember { mutableStateOf(0) }
     val tabs = listOf("Orders", "Menu & Items", "Restaurant Info")
 
@@ -39,7 +43,7 @@ fun RestaurantManagementScreen(restaurant: RestaurantDto) {
             }
             when (selectedTabIndex) {
                 0 -> OrdersContent(restaurantId = restaurant.id)
-                1 -> MenuItemsContent(restaurantId = restaurant.id)
+                1 -> MenuItemsContent(restaurantId = restaurant.id, navController = navController, viewModel = hiltViewModel())
                 2 -> RestaurantInfoContent(restaurant = restaurant)
             }
         }

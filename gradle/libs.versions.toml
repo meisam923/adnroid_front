@@ -38,6 +38,7 @@ androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 androidx-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended", version = "1.6.8" }
 
+
 # --- Add these new libraries ---
 # Hilt for Dependency Injection
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }

@@ -6,6 +6,7 @@ import com.example.apfront.data.remote.dto.CreateRestaurantRequest
 import com.example.apfront.data.remote.dto.RestaurantDto
 import com.example.apfront.data.repository.RestaurantRepository
 import com.example.apfront.util.Resource
+import com.example.apfront.util.SessionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -15,7 +16,8 @@ import kotlin.io.encoding.Base64
 
 @HiltViewModel
 class CreateRestaurantViewModel @Inject constructor(
-    private val repository: RestaurantRepository
+    private val repository: RestaurantRepository,
+    private val sessionManager: SessionManager
 ) : ViewModel() {
 
     private val _createState = MutableStateFlow<Resource<RestaurantDto>>(Resource.Idle())
@@ -30,6 +32,11 @@ class CreateRestaurantViewModel @Inject constructor(
         additionalFee :Int,
         logoBase64: String?
     ) {
+        val token = sessionManager.getAuthToken()
+        if (token.isNullOrEmpty()) {
+            _createState.value = Resource.Error("error_401_unauthorized")
+            return
+        }
         viewModelScope.launch {
             _createState.value = Resource.Loading()
             val request = CreateRestaurantRequest(
