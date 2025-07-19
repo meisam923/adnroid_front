@@ -43,6 +43,7 @@ dependencies {
     // Make sure to add Hilt dependencies here as well
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.hilt.android)
+    implementation(libs.androidx.ui.tooling.preview.android)
     kapt(libs.hilt.compiler)
     implementation(libs.hilt.navigation.compose)
 
