@@ -38,7 +38,7 @@ android {
 
 dependencies {
     // ... your dependencies remain the same
-    implementation(libs.coil.compose)
+    implementation("io.coil-kt:coil-compose:2.6.0")
 
     // Make sure to add Hilt dependencies here as well
     implementation(platform(libs.androidx.compose.bom))
@@ -52,11 +52,8 @@ dependencies {
     implementation(libs.retrofit.converter.gson)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.material.icons.extended)
-    implementation(libs.okhttp.logging)
-    implementation(libs.androidx.material.icons.extended.android)
-    implementation(libs.material.icons.extended)
-
-
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+    implementation("androidx.compose.material:material-icons-extended-android:1.6.8")
 }
 
 // Add this block at the end of the file for Hilt

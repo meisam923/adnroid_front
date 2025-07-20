@@ -44,7 +44,7 @@ fun SellerHubScreen(
             is SellerHubUiState.Success -> {
                 // If a restaurant exists, check its status and show the correct screen
                 when (state.restaurant.approvalStatus.uppercase()) {
-                    "REGISTERED" -> RestaurantManagementScreen(restaurant = state.restaurant)
+                    "REGISTERED" -> RestaurantManagementScreen(restaurant = state.restaurant, navController = navController)
                     "WAITING" -> WaitingForApprovalScreen(
                         onGoBackPressed = { navController.popBackStack() } // Allows user to go back
                     )
