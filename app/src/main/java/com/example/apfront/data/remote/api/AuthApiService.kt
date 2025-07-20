@@ -30,4 +30,7 @@ interface AuthApiService {
         @Header("Authorization") token: String,
         @Body request: UpdateProfileRequest
     ): Response<Unit>
+
+    @POST("auth/logout")
+    suspend fun logout(@Header("Authorization") token: String): Response<Unit>
 }

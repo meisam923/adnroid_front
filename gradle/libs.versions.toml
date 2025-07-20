@@ -1,5 +1,6 @@
 [versions]
 agp = "8.10.0" # Updated for compatibility
+coilCompose = "2.6.0"
 kotlin = "1.9.22" # Updated for compatibility
 coreKtx = "1.13.1"
 junit = "4.13.2"
@@ -13,6 +14,7 @@ composeCompiler = "1.5.8" # Added Compose Compiler version
 # --- Add these new versions ---
 hilt = "2.51.1"
 hiltNavigationCompose = "1.2.0"
+materialIconsExtendedAndroid = "1.7.8"
 retrofit = "2.11.0"
 okhttp = "4.12.0"
 coroutines = "1.8.0"
@@ -23,6 +25,8 @@ uiToolingPreviewAndroid = "1.8.3"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-material-icons-extended-android = { module = "androidx.compose.material:material-icons-extended-android", version.ref = "materialIconsExtendedAndroid" }
+coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -46,6 +50,7 @@ hilt-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", v
 hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
 
 # Retrofit for Networking
+material-icons-extended = { module = "androidx.compose.material:material-icons-extended" }
 retrofit-core = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
 retrofit-converter-gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofit" }
 okhttp-logging = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttp" }

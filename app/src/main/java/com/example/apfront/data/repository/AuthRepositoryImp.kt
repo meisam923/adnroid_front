@@ -64,4 +64,17 @@ class AuthRepositoryImpl @Inject constructor(
             Resource.Error("An unknown error occurred: ${e.localizedMessage}")
         }
     }
+
+    override suspend fun logout(token: String): Resource<Unit> {
+        return try {
+            val response = api.logout("Bearer $token")
+            if (response.isSuccessful) {
+                Resource.Success(Unit)
+            } else {
+                Resource.Error("Logout failed on server: ${response.message()}")
+            }
+        } catch (e: Exception) {
+            Resource.Error("An unknown error occurred during logout: ${e.localizedMessage}")
+        }
+    }
 }

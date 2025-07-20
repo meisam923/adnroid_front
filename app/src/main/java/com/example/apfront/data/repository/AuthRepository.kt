@@ -14,4 +14,5 @@ interface AuthRepository {
     suspend fun register(request: RegisterRequest): Resource<RegisterResponse>
     suspend fun getProfile(token: String): Resource<UserDto>
     suspend fun updateProfile(token: String, request: UpdateProfileRequest): Resource<Unit>
+    suspend fun logout(token: String): Resource<Unit>
 }

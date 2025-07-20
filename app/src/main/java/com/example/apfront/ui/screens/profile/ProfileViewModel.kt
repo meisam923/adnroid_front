@@ -96,6 +96,10 @@ class ProfileViewModel @Inject constructor(
 
     fun logout() {
         viewModelScope.launch {
+            val token = sessionManager.getAuthToken()
+            if (token != null) {
+                repository.logout(token)
+            }
             sessionManager.clearSession()
         }
     }

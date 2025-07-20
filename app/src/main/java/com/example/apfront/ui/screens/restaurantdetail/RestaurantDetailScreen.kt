@@ -69,7 +69,8 @@ fun RestaurantDetailScreen(
                                 modifier = Modifier.padding(vertical = 8.dp)
                             )
                         }
-                        items(details.menus[menuTitle] ?: emptyList()) { foodItem ->
+                        val itemsForMenu = details.menus?.get(menuTitle) ?: emptyList()
+                        items(itemsForMenu) { foodItem ->
                             FoodItemRow(
                                 item = foodItem,
                                 quantityInCart = uiState.cart.find { it.item.id == foodItem.id }?.quantity ?: 0,
@@ -105,6 +106,7 @@ fun FoodItemRow(
         Row(verticalAlignment = Alignment.CenterVertically) {
             if (quantityInCart > 0) {
                 IconButton(onClick = onRemoveItem) {
+                    // This is the correct reference
                     Icon(imageVector = Icons.Default.Remove, contentDescription = "Remove one")
                 }
                 Text(text = "$quantityInCart", modifier = Modifier.padding(horizontal = 8.dp))

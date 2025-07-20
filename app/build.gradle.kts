@@ -37,43 +37,23 @@ android {
 }
 
 dependencies {
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation(libs.androidx.activity.compose)
+    // ... your dependencies remain the same
+    implementation("io.coil-kt:coil-compose:2.6.0")
 
-    // --- Jetpack Compose ---
-    // 1. Declare the BOM first to manage all Compose library versions
+    // Make sure to add Hilt dependencies here as well
     implementation(platform(libs.androidx.compose.bom))
-
-    // 2. Declare the individual Compose libraries (without versions)
-    implementation(libs.androidx.ui)
-    implementation(libs.androidx.ui.graphics)
-    implementation(libs.androidx.ui.tooling.preview)
-    implementation(libs.androidx.material3)
-    implementation(libs.androidx.material.icons.extended)
-
-    // Hilt for Dependency Injection
     implementation(libs.hilt.android)
+    implementation(libs.androidx.ui.tooling.preview.android)
     kapt(libs.hilt.compiler)
     implementation(libs.hilt.navigation.compose)
 
-    // Retrofit for Networking
+    // And Retrofit, etc.
     implementation(libs.retrofit.core)
     implementation(libs.retrofit.converter.gson)
-    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0") // Using string as it wasn't in your libs file
-
-    // Coil for Image Loading
-    implementation("io.coil-kt:coil-compose:2.6.0")
-
-    // Testing
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
-    androidTestImplementation(libs.androidx.ui.test.junit4)
-    debugImplementation(libs.androidx.ui.tooling)
-    debugImplementation(libs.androidx.ui.test.manifest)
-
+    implementation(libs.androidx.material3)
+    implementation(libs.androidx.material.icons.extended)
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+    implementation("androidx.compose.material:material-icons-extended-android:1.6.8")
 }
 
 // Add this block at the end of the file for Hilt

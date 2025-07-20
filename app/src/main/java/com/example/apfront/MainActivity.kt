@@ -62,12 +62,12 @@ fun AppNavigation(
 
     NavHost(navController = navController, startDestination = "splash") {
 
-        // A temporary "splash" screen to decide the first real screen
         composable("splash") {
+            // This screen decides the initial route based on login status.
             LaunchedEffect(startState) {
                 when (val state = startState) {
                     is AppStartState.UserLoggedIn -> {
-                        // If user is already logged in, go to the main flow
+                        // If user is already logged in, go to the main flow, passing the role
                         navController.navigate("main_flow/${state.role}") {
                             popUpTo("splash") { inclusive = true }
                         }
@@ -81,11 +81,13 @@ fun AppNavigation(
                     is AppStartState.Loading -> { /* Wait for state change */ }
                 }
             }
+            // Show a loading indicator while deciding
             Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
                 CircularProgressIndicator()
             }
         }
 
+        // The "auth_flow" is a nested graph for login and register screens
         navigation(startDestination = "login", route = "auth_flow") {
             composable("login") {
                 LoginScreen(
@@ -108,6 +110,7 @@ fun AppNavigation(
             }
         }
 
+        // The "main_flow" is the destination for the entire logged-in experience
         composable("main_flow/{userRole}") { backStackEntry ->
             val userRole = backStackEntry.arguments?.getString("userRole") ?: "BUYER"
             MainScreen(
@@ -122,6 +125,10 @@ fun AppNavigation(
     }
 }
 
+/**
+ * This composable represents the main screen for a logged-in user.
+ * It contains the bottom navigation bar and the screens that can be accessed from it.
+ */
 @Composable
 fun MainScreen(
     userRole: String,
@@ -156,6 +163,7 @@ fun MainScreen(
             }
         }
     ) { innerPadding ->
+        // This is the INNER NavHost for the logged-in part of the app
         NavHost(
             navController,
             startDestination = BottomNavItem.Home.route,
