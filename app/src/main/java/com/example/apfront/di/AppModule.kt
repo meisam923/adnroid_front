@@ -9,6 +9,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
@@ -33,7 +34,13 @@ object AppModule {
     fun provideOkHttpClient(
         authenticator: AuthAuthenticator
     ): OkHttpClient {
+        // 1. Create the logger
+        val logging = HttpLoggingInterceptor()
+        logging.setLevel(HttpLoggingInterceptor.Level.BODY) // Log everything: headers and body
+
+        // 2. Build the client, now with the logger attached
         return OkHttpClient.Builder()
+            .addInterceptor(logging) // Add the logger as an interceptor
             .authenticator(authenticator)
             .build()
     }

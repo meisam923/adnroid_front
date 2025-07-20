@@ -80,6 +80,7 @@ fun MainScreen(
             ) {
                 RestaurantDetailScreen()
             }
+            
         }
     }
 }
