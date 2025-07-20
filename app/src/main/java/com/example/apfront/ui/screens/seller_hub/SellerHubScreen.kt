@@ -39,7 +39,9 @@ fun SellerHubScreen(
             }
             is SellerHubUiState.NoRestaurantFound -> {
                 // If no restaurant exists, show the creation screen
-                CreateRestaurantScreen()
+                CreateRestaurantScreen(onSuccess = {
+                    viewModel.checkRestaurantStatus()
+                })
             }
             is SellerHubUiState.Success -> {
                 // If a restaurant exists, check its status and show the correct screen

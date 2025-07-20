@@ -23,6 +23,7 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.apfront.R
 import com.example.apfront.data.remote.dto.RestaurantDto
 import com.example.apfront.util.Resource
+import com.example.apfront.util.uriToBase64
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -65,10 +66,16 @@ fun RestaurantInfoContent(
         Spacer(modifier = Modifier.height(16.dp))
 
         // Image Preview and Button
-        Image(
-            painter = painter,
+        Base64Image(
+            base64Data = when {
+                imageUri != null -> uriToBase64(context, imageUri!!) // decode on the fly
+                !existingLogo.isNullOrEmpty() -> "data:image/jpeg;base64,$existingLogo"
+                else -> null
+            },
             contentDescription = "Restaurant Logo",
-            modifier = Modifier.fillMaxWidth().height(200.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(200.dp),
             contentScale = ContentScale.Crop
         )
         Spacer(modifier = Modifier.height(8.dp))

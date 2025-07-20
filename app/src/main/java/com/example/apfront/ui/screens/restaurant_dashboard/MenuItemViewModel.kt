@@ -1,79 +1,358 @@
 package com.example.apfront.ui.screens.restaurant_dashboard
 
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import android.graphics.BitmapFactory
+import android.util.Base64
+import android.util.Log
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
+import com.example.apfront.R
+import com.example.apfront.data.remote.dto.ItemDto
 import com.example.apfront.data.remote.dto.VendorMenuResponse
-import com.example.apfront.data.repository.RestaurantRepository
-import com.example.apfront.util.Resource
-import com.example.apfront.util.SessionManager
-import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-// Represents the state of the Menu & Items screen
-sealed interface MenuItemsUiState {
-    object Loading : MenuItemsUiState
-    data class Success(val menuData: VendorMenuResponse) : MenuItemsUiState
-    data class Error(val code: Int?) : MenuItemsUiState
-}
+@Composable
+fun MenuItemsContent(
+    restaurantId: Int,
+    navController: NavController,
+    viewModel: MenuItemsViewModel = hiltViewModel()
+) {
+    var selectedSubTabIndex by remember { mutableStateOf(0) }
+    val subTabs = listOf(
+        stringResource(id = R.string.tab_all_items),
+        stringResource(id = R.string.tab_menu_categories)
+    )
+    val uiState by viewModel.uiState.collectAsState()
 
-@HiltViewModel
-class MenuItemsViewModel @Inject constructor(
-    private val repository: RestaurantRepository,
-    private val sessionManager: SessionManager
-) : ViewModel() {
-
-    private val _uiState = MutableStateFlow<MenuItemsUiState>(MenuItemsUiState.Loading)
-    val uiState: StateFlow<MenuItemsUiState> = _uiState.asStateFlow()
-
-    // We store the restaurantId to use for refreshing the list after a delete
-    private var currentRestaurantId: Int? = null
-
-    fun loadMenu(restaurantId: Int) {
-        currentRestaurantId = restaurantId // Save the ID for later
-        val token = sessionManager.getAuthToken()
-        if (token.isNullOrEmpty()) {
-            _uiState.value = MenuItemsUiState.Error(401) // Unauthorized
-            return
-        }
-
-        viewModelScope.launch {
-            _uiState.value = MenuItemsUiState.Loading
-            when (val result = repository.getVendorMenu(token, restaurantId)) {
-                is Resource.Success -> {
-                    _uiState.value = MenuItemsUiState.Success(result.data!!)
-                }
-                is Resource.Error -> {
-                    _uiState.value = MenuItemsUiState.Error(result.code)
-                }
-                else -> {}
-            }
-        }
+    LaunchedEffect(key1 = restaurantId) {
+        viewModel.loadMenu(restaurantId)
     }
 
-    // --- ADDED THIS FUNCTION ---
-    fun deleteFoodItem(itemId: Int) {
-        val token = sessionManager.getAuthToken()
-        val restaurantId = currentRestaurantId
-
-        if (token.isNullOrEmpty() || restaurantId == null) {
-            // Optionally, you can set an error state here to show a message
-            return
+    Scaffold(
+        floatingActionButton = {
+            if (selectedSubTabIndex == 0) {
+                FloatingActionButton(onClick = { navController.navigate("create_edit_item/$restaurantId") }) {
+                    Icon(Icons.Filled.Add, contentDescription = stringResource(id = R.string.add_new_item))
+                }
+            }
         }
+    ) { padding ->
+        Column(modifier = Modifier.padding(padding)) {
+            TabRow(selectedTabIndex = selectedSubTabIndex) {
+                subTabs.forEachIndexed { index, title ->
+                    Tab(
+                        selected = selectedSubTabIndex == index,
+                        onClick = { selectedSubTabIndex = index },
+                        text = { Text(title) }
+                    )
+                }
+            }
 
-        viewModelScope.launch {
-            // Call the repository to delete the item
-            val result = repository.deleteFoodItem(token, restaurantId, itemId)
-
-            // If the deletion was successful, we need to refresh the list
-            if (result is Resource.Success) {
-                loadMenu(restaurantId) // Reload the menu to show the change
-            } else {
-                // Optionally, handle the error (e.g., show a Toast)
+            when (val state = uiState) {
+                is MenuItemsUiState.Loading -> {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
+                    }
+                }
+                is MenuItemsUiState.Success -> {
+                    when (selectedSubTabIndex) {
+                        0 -> AllItemsList(
+                            menuData = state.menuData,
+                            viewModel = viewModel,
+                            navController = navController,
+                            restaurantId = restaurantId
+                        )
+                        1 -> MenuCategoriesList(
+                            menuData = state.menuData,
+                            viewModel = viewModel
+                        )
+                    }
+                }
+                is MenuItemsUiState.Error -> {
+                    Text("An error occurred. Code: ${state.code}")
+                }
             }
         }
     }
 }
+
+@Composable
+fun AllItemsList(
+    menuData: VendorMenuResponse,
+    viewModel: MenuItemsViewModel,
+    navController: NavController,
+    restaurantId: Int
+) {
+    val allItems by remember(menuData) {
+        derivedStateOf {
+            menuData.menu?.values?.flatten()?.distinctBy { it.id } ?: emptyList()
+        }
+    }
+
+    if (allItems.isEmpty()) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Text("You haven't added any food items yet.")
+        }
+    } else {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            items(allItems) { item ->
+                FoodItemCard(
+                    item = item,
+                    onEditClicked = { navController.navigate("create_edit_item/$restaurantId?itemId=${item.id}") },
+                    onDeleteClicked = { viewModel.deleteFoodItem(item.id) }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun FoodItemCard(
+    item: ItemDto,
+    onEditClicked: () -> Unit,
+    onDeleteClicked: () -> Unit
+) {
+    Card(modifier = Modifier.fillMaxWidth().height(120.dp)) {
+        Row(
+            modifier = Modifier.fillMaxSize(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Using your custom Base64Image composable
+            Base64Image(
+                base64Data = item.image,
+                contentDescription = item.name,
+                modifier = Modifier.size(120.dp)
+            )
+            Column(
+                modifier = Modifier.weight(1f).padding(horizontal = 12.dp)
+            ) {
+                Text(item.name, style = MaterialTheme.typography.titleMedium)
+                Text("Price: ${item.price}", style = MaterialTheme.typography.bodySmall)
+                Text("Supply: ${item.supply}", style = MaterialTheme.typography.bodySmall)
+            }
+            Column {
+                TextButton(onClick = onEditClicked) { Text("Edit") }
+                TextButton(onClick = onDeleteClicked) { Text("Delete") }
+            }
+        }
+    }
+}
+
+@Composable
+fun MenuCategoriesList(
+    menuData: VendorMenuResponse,
+    viewModel: MenuItemsViewModel
+) {
+    var showAddCategoryDialog by remember { mutableStateOf(false) }
+    var newCategoryTitle by remember { mutableStateOf("") }
+    var showAddItemDialog by remember { mutableStateOf<String?>(null) }
+
+    val allItems = remember(menuData) {
+        menuData.menu?.values?.flatten()?.distinctBy { it.id } ?: emptyList()
+    }
+
+    if (showAddCategoryDialog) {
+        AlertDialog(
+            onDismissRequest = { showAddCategoryDialog = false },
+            title = { Text("New Menu Category") },
+            text = { OutlinedTextField(value = newCategoryTitle, onValueChange = { newCategoryTitle = it }, label = { Text("Category Title") }) },
+            confirmButton = { Button(onClick = {
+                viewModel.createMenuCategory(newCategoryTitle)
+                showAddCategoryDialog = false
+                newCategoryTitle = ""
+            }) { Text("Create") } },
+            dismissButton = { TextButton(onClick = { showAddCategoryDialog = false }) { Text("Cancel") } }
+        )
+    }
+
+    showAddItemDialog?.let { menuTitle ->
+        AddItemToMenuDialog(
+            allItems = allItems,
+            onDismiss = { showAddItemDialog = null },
+            onItemSelected = { itemId ->
+                viewModel.addItemToMenu(menuTitle, itemId)
+                showAddItemDialog = null
+            }
+        )
+    }
+
+    Column {
+        Button(onClick = { showAddCategoryDialog = true }, modifier = Modifier.padding(16.dp)) {
+            Text("Add New Category")
+        }
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(horizontal = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            items(menuData.menuTitles) { title ->
+                MenuCategoryCard(
+                    title = title,
+                    items = menuData.menu?.get(title) ?: emptyList(),
+                    onDeleteCategoryClicked = { viewModel.deleteMenuCategory(title) },
+                    onRemoveItemClicked = { itemId -> viewModel.removeItemFromMenu(title, itemId) },
+                    onAddItemClicked = { showAddItemDialog = title }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun MenuCategoryCard(
+    title: String,
+    items: List<ItemDto>,
+    onDeleteCategoryClicked: () -> Unit,
+    onRemoveItemClicked: (Int) -> Unit,
+    onAddItemClicked: () -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column {
+            Row(
+                modifier = Modifier.fillMaxWidth().clickable { expanded = !expanded }.padding(horizontal = 16.dp, vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(title, style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
+                IconButton(onClick = onDeleteCategoryClicked) { Icon(Icons.Default.Delete, contentDescription = "Delete Category") }
+                Icon(if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore, contentDescription = "Expand")
+            }
+            AnimatedVisibility(visible = expanded) {
+                Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
+                    items.forEach { item ->
+                        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                            Text(item.name, modifier = Modifier.weight(1f))
+                            IconButton(onClick = { onRemoveItemClicked(item.id) }) {
+                                Icon(Icons.Default.RemoveCircleOutline, contentDescription = "Remove item from menu")
+                            }
+                        }
+                    }
+                    TextButton(onClick = onAddItemClicked, modifier = Modifier.align(Alignment.End)) {
+                        Text("Add Item...")
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun AddItemToMenuDialog(
+    allItems: List<ItemDto>,
+    onDismiss: () -> Unit,
+    onItemSelected: (Int) -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Add Item to Menu") },
+        text = {
+            LazyColumn {
+                items(allItems) { item ->
+                    Text(
+                        text = item.name,
+                        modifier = Modifier.fillMaxWidth().clickable { onItemSelected(item.id) }.padding(vertical = 12.dp)
+                    )
+                }
+            }
+        },
+        confirmButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
+    )
+}
+
+/*
+@Composable
+fun Base64Image(
+    base64Data: String?,
+    contentDescription: String?,
+    modifier: Modifier = Modifier,
+    contentScale: ContentScale = ContentScale.Crop
+) {
+    val imageBitmap: ImageBitmap? = remember(base64Data) {
+        try {
+            base64Data?.let {
+                val imageBytes = Base64.decode(it, Base64.DEFAULT)
+                BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)?.asImageBitmap()
+            }
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    if (imageBitmap != null) {
+        Image(
+            bitmap = imageBitmap,
+            contentDescription = contentDescription,
+            modifier = modifier,
+            contentScale = contentScale
+        )
+    } else {
+        Image(
+            painter = painterResource(id = R.drawable.ic_placeholder),
+            contentDescription = "Placeholder",
+            modifier = modifier,
+            contentScale = contentScale
+        )
+    }
+}
+*/
+@Composable
+fun Base64Image(
+    base64Data: String?,
+    contentDescription: String?,
+    modifier: Modifier = Modifier,
+    contentScale: ContentScale = ContentScale.Crop
+) {
+    val imageBitmap: ImageBitmap? = remember(base64Data) {
+        try {
+            base64Data?.let {
+                val cleanBase64 = it.substringAfter("base64,", it)
+                val imageBytes = Base64.decode(cleanBase64, Base64.DEFAULT)
+                val bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+
+                Log.d("Base64Image", "Bitmap decode result: ${bitmap != null}")
+                bitmap?.asImageBitmap()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+
+    if (imageBitmap != null) {
+        Image(
+            bitmap = imageBitmap,
+            contentDescription = contentDescription,
+            modifier = modifier,
+            contentScale = contentScale
+        )
+    } else {
+        Image(
+            painter = painterResource(id = R.drawable.ic_placeholder),
+            contentDescription = "Placeholder",
+            modifier = modifier,
+            contentScale = contentScale
+        )
+    }
+}
+

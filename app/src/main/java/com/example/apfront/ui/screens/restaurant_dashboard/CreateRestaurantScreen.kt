@@ -35,6 +35,7 @@ import com.example.apfront.util.uriToBase64
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateRestaurantScreen(
+    onSuccess : ()-> Unit,
     viewModel: CreateRestaurantViewModel = hiltViewModel()
 ) {
     // State for text fields
@@ -50,6 +51,12 @@ fun CreateRestaurantScreen(
     val createState by viewModel.createState.collectAsState()
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(createState) {
+        if (createState is Resource.Success) {
+            onSuccess()
+        }
+    }
 
     // IMPORTANT: You need to pass the real auth token here
     val token = "your_saved_auth_token"

@@ -1,12 +1,9 @@
 package com.example.apfront.data.repository
 
 import com.example.apfront.data.remote.api.RestaurantApiService
-import com.example.apfront.data.remote.dto.CreateItemRequest
-import com.example.apfront.data.remote.dto.CreateRestaurantRequest
-import com.example.apfront.data.remote.dto.ItemDto
-import com.example.apfront.data.remote.dto.RestaurantDto
-import com.example.apfront.data.remote.dto.VendorMenuResponse
+import com.example.apfront.data.remote.dto.*
 import com.example.apfront.util.Resource
+import retrofit2.Response
 import java.io.IOException
 import javax.inject.Inject
 
@@ -14,14 +11,14 @@ class RestaurantRepositoryImpl @Inject constructor(
     private val api: RestaurantApiService
 ) : RestaurantRepository {
 
-    override suspend fun createRestaurant(
-        token: String,
-        request: CreateRestaurantRequest
-    ): Resource<RestaurantDto> {
+    // A helper function to reduce repetitive code
+    private suspend fun <T> safeApiCall(apiCall: suspend () -> Response<T>): Resource<T> {
         return try {
-            val response = api.createRestaurant("Bearer $token", request)
-            if (response.isSuccessful && response.body() != null) {
-                Resource.Success(response.body()!!)
+            val response = apiCall()
+            if (response.isSuccessful) {
+                // Handle cases with and without a response body
+                val body = response.body()
+                Resource.Success(body ?: Unit as T)
             } else {
                 when (response.code()) {
                     400 -> Resource.Error("error_400_invalid_input")
@@ -30,12 +27,16 @@ class RestaurantRepositoryImpl @Inject constructor(
                     404 -> Resource.Error("error_404_not_found")
                     409 -> Resource.Error("error_409_conflict")
                     500 -> Resource.Error("error_500_server_error")
-                    else -> Resource.Error("error_unknown")
-                }
-            }
+                    else -> Resource.Error("error_unknown")    }                                      }
+        } catch (e: IOException) {
+            Resource.Error(code = -1, message = "error_network_connection")
         } catch (e: Exception) {
-            Resource.Error(e.message ?: "An unknown error occurred")
+            Resource.Error(code = -2, message = "error_unknown")
         }
+    }
+
+    override suspend fun createRestaurant(token: String, request: CreateRestaurantRequest): Resource<RestaurantDto> {
+        return safeApiCall { api.createRestaurant("Bearer $token", request) }
     }
 
     override suspend fun getMyRestaurant(token: String): Resource<List<RestaurantDto>> {
@@ -43,29 +44,8 @@ class RestaurantRepositoryImpl @Inject constructor(
             val response = api.getMyRestaurant("Bearer $token")
             if (response.isSuccessful && response.body() != null) {
                 Resource.Success(response.body()!!)
-            } else if (response.code() == 401) {
-                // This handles the case where the seller has no restaurant yet
-                Resource.Error("No restaurant found")
-            } else {
-                // You can add more specific error codes here later
-                Resource.Error("error_unknown")
-            }
-        } catch (e: IOException) {
-            Resource.Error("error_network_connection")
-        } catch (e: Exception) {
-            Resource.Error("error_unknown")
-        }
-    }
-
-    override suspend fun updateRestaurant(
-        token: String,
-        restaurantId: Int,
-        request: CreateRestaurantRequest
-    ): Resource<RestaurantDto> {
-        return try {
-            val response = api.updateRestaurant("Bearer $token", restaurantId, request)
-            if (response.isSuccessful && response.body() != null) {
-                Resource.Success(response.body()!!)
+            } else if (response.code() == 404) {
+                Resource.Error(message = "No restaurant found")
             } else {
                 when (response.code()) {
                     400 -> Resource.Error("error_400_invalid_input")
@@ -74,86 +54,54 @@ class RestaurantRepositoryImpl @Inject constructor(
                     404 -> Resource.Error("error_404_not_found")
                     409 -> Resource.Error("error_409_conflict")
                     500 -> Resource.Error("error_500_server_error")
-                    else -> Resource.Error("error_unknown")    }}
+                    else -> Resource.Error("error_unknown")    }                                      }
         } catch (e: Exception) {
-            Resource.Error("error_network_connection")
+            Resource.Error(code = -1, message = "error_network_connection")
         }
+    }
+
+    override suspend fun updateRestaurant(token: String, restaurantId: Int, request: CreateRestaurantRequest): Resource<RestaurantDto> {
+        return safeApiCall { api.updateRestaurant("Bearer $token", restaurantId, request) }
     }
 
     override suspend fun getVendorMenu(token: String, restaurantId: Int): Resource<VendorMenuResponse> {
-        return try {
-            val response = api.getVendorMenu("Bearer $token", restaurantId)
-            if (response.isSuccessful && response.body() != null) {
-                Resource.Success(response.body()!!)
-            } else {
-                when (response.code()) {
-                    400 -> Resource.Error("error_400_invalid_input")
-                    401 -> Resource.Error("error_401_unauthorized")
-                    403 -> Resource.Error("error_403_forbidden")
-                    404 -> Resource.Error("error_404_not_found")
-                    409 -> Resource.Error("error_409_conflict")
-                    500 -> Resource.Error("error_500_server_error")
-                    else -> Resource.Error("error_unknown")    }}
-        } catch (e: Exception) {
-            Resource.Error(message = "error_network_connection")
-        }
-    }
-
-    override suspend fun deleteFoodItem(token: String, restaurantId: Int, itemId: Int): Resource<Unit> {
-        return try {
-            val response = api.deleteFoodItem("Bearer $token", restaurantId, itemId)
-            if (response.isSuccessful) {
-                Resource.Success(Unit) // Unit represents a successful response with no body
-            } else {
-                when (response.code()) {
-                    400 -> Resource.Error("error_400_invalid_input")
-                    401 -> Resource.Error("error_401_unauthorized")
-                    403 -> Resource.Error("error_403_forbidden")
-                    404 -> Resource.Error("error_404_not_found")
-                    409 -> Resource.Error("error_409_conflict")
-                    500 -> Resource.Error("error_500_server_error")
-                    else -> Resource.Error("error_unknown")    }}
-        } catch (e: Exception) {
-            Resource.Error(code = -1, message = "error_network_connection")
-        }
+        return safeApiCall { api.getVendorMenu("Bearer $token", restaurantId) }
     }
 
     override suspend fun addFoodItem(token: String, restaurantId: Int, request: CreateItemRequest): Resource<ItemDto> {
-        return try {
-            val response = api.addFoodItem("Bearer $token", restaurantId, request)
-            if (response.isSuccessful && response.body() != null) {
-                Resource.Success(response.body()!!)
-            } else {
-                when (response.code()) {
-                    400 -> Resource.Error("error_400_invalid_input")
-                    401 -> Resource.Error("error_401_unauthorized")
-                    403 -> Resource.Error("error_403_forbidden")
-                    404 -> Resource.Error("error_404_not_found")
-                    409 -> Resource.Error("error_409_conflict")
-                    500 -> Resource.Error("error_500_server_error")
-                    else -> Resource.Error("error_unknown")    }}
-        } catch (e: Exception) {
-            Resource.Error(code = -1, message = "error_network_connection")
-        }
+        return safeApiCall { api.addFoodItem("Bearer $token", restaurantId, request) }
     }
 
-    // --- ADD THIS FUNCTION FOR UPDATING AN EXISTING ITEM ---
     override suspend fun updateFoodItem(token: String, restaurantId: Int, itemId: Int, request: CreateItemRequest): Resource<ItemDto> {
-        return try {
-            val response = api.updateFoodItem("Bearer $token", restaurantId, itemId, request)
-            if (response.isSuccessful && response.body() != null) {
-                Resource.Success(response.body()!!)
-            } else {
-                when (response.code()) {
-                    400 -> Resource.Error("error_400_invalid_input")
-                    401 -> Resource.Error("error_401_unauthorized")
-                    403 -> Resource.Error("error_403_forbidden")
-                    404 -> Resource.Error("error_404_not_found")
-                    409 -> Resource.Error("error_409_conflict")
-                    500 -> Resource.Error("error_500_server_error")
-                    else -> Resource.Error("error_unknown")    }}
-        } catch (e: Exception) {
-            Resource.Error(code = -1, message = "error_network_connection")
-        }
+        return safeApiCall { api.updateFoodItem("Bearer $token", restaurantId, itemId, request) }
+    }
+
+    override suspend fun deleteFoodItem(token: String, restaurantId: Int, itemId: Int): Resource<Unit> {
+        return safeApiCall { api.deleteFoodItem("Bearer $token", restaurantId, itemId) }
+    }
+
+    override suspend fun createMenuCategory(token: String, restaurantId: Int, request: CreateMenuRequest): Resource<Unit> {
+        return safeApiCall { api.createMenuCategory("Bearer $token", restaurantId, request) }
+    }
+
+    override suspend fun deleteMenuCategory(token: String, restaurantId: Int, title: String): Resource<Unit> {
+        return safeApiCall { api.deleteMenuCategory("Bearer $token", restaurantId, title) }
+    }
+
+    // --- THIS FUNCTION WAS MISSING ---
+    override suspend fun addItemToMenu(token: String, restaurantId: Int, menuTitle: String, request: AddItemToMenuRequest): Resource<Unit> {
+        return safeApiCall { api.addItemToMenu("Bearer $token", restaurantId, menuTitle, request) }
+    }
+
+    override suspend fun removeItemFromMenu(token: String, restaurantId: Int, menuTitle: String, itemId: Int): Resource<Unit> {
+        return safeApiCall { api.removeItemFromMenu("Bearer $token", restaurantId, menuTitle, itemId) }
+    }
+
+    override suspend fun getRestaurantOrders(token: String, restaurantId: Int, status: String?): Resource<List<OrderDto>> {
+        return safeApiCall { api.getRestaurantOrders("Bearer $token", restaurantId, status) }
+    }
+
+    override suspend fun updateOrderStatus(token: String, orderId: Int, request: UpdateOrderStatusRequest): Resource<Unit> {
+        return safeApiCall { api.updateOrderStatus("Bearer $token", orderId, request) }
     }
 }

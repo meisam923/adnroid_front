@@ -18,7 +18,7 @@
     <string name="error_401_unauthorized">Authentication failed. Please log in again.</string>
     <string name="error_403_forbidden">You do not have permission to perform this action.</string>
     <string name="error_404_not_found">The requested item was not found.</string>
-    <string name="error_409_conflict">This item already exists.</string>
+    <string name="error_409_conflict">Conflict already exists.</string>
     <string name="error_500_server_error">A server error occurred. Please try again later.</string>
     <string name="error_network_connection">Failed to connect. Please check your internet connection.</string>
     <string name="error_unknown">An unknown error occurred.</string>

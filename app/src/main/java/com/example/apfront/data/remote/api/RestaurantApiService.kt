@@ -59,7 +59,12 @@ interface RestaurantApiService {
     ): Response<Unit>
 
     // --- Menu Category Management ---
-
+    @DELETE("restaurants/{id}/menu/{title}")
+    suspend fun deleteMenuCategory(
+        @Header("Authorization") token: String,
+        @Path("id") restaurantId: Int,
+        @Path("title") menuTitle: String
+    ): Response<Unit>
     @POST("restaurants/{id}/menu")
     suspend fun createMenuCategory(
         @Header("Authorization") token: String,
@@ -98,4 +103,5 @@ interface RestaurantApiService {
         @Path("order_id") orderId: Int,
         @Body request: UpdateOrderStatusRequest
     ): Response<Unit>
+
 }
