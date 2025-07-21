@@ -94,7 +94,8 @@ interface RestaurantApiService {
     suspend fun getRestaurantOrders(
         @Header("Authorization") token: String,
         @Path("id") restaurantId: Int,
-        @Query("status") status: String? // To filter by status (e.g., "accepted")
+        @Query("status") status: String?,// To filter by status (e.g., "accepted")
+        @Query("search") search: String?,
     ): Response<List<OrderDto>>
 
     @PATCH("restaurants/orders/{order_id}")

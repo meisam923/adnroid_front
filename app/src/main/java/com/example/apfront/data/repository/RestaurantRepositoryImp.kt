@@ -97,8 +97,8 @@ class RestaurantRepositoryImpl @Inject constructor(
         return safeApiCall { api.removeItemFromMenu("Bearer $token", restaurantId, menuTitle, itemId) }
     }
 
-    override suspend fun getRestaurantOrders(token: String, restaurantId: Int, status: String?): Resource<List<OrderDto>> {
-        return safeApiCall { api.getRestaurantOrders("Bearer $token", restaurantId, status) }
+    override suspend fun getRestaurantOrders(token: String, restaurantId: Int, status: String?, search: String?): Resource<List<OrderDto>> {
+        return safeApiCall { api.getRestaurantOrders("Bearer $token", restaurantId, status,search) }
     }
 
     override suspend fun updateOrderStatus(token: String, orderId: Int, request: UpdateOrderStatusRequest): Resource<Unit> {

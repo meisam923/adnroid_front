@@ -27,6 +27,6 @@ interface RestaurantRepository {
     suspend fun removeItemFromMenu(token: String, restaurantId: Int, menuTitle: String, itemId: Int): Resource<Unit>
 
     // Orders
-    suspend fun getRestaurantOrders(token: String, restaurantId: Int, status: String?): Resource<List<OrderDto>>
+    suspend fun getRestaurantOrders(token: String, restaurantId: Int, status: String?,search : String?): Resource<List<OrderDto>>
     suspend fun updateOrderStatus(token: String, orderId: Int, request: UpdateOrderStatusRequest): Resource<Unit>
 }

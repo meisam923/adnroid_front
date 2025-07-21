@@ -1,5 +1,6 @@
 package com.example.apfront.ui.screens.restaurant_dashboard
 
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Base64
 import android.util.Log
@@ -279,8 +280,6 @@ fun AddItemToMenuDialog(
         confirmButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
     )
 }
-
-/*
 @Composable
 fun Base64Image(
     base64Data: String?,
@@ -291,50 +290,25 @@ fun Base64Image(
     val imageBitmap: ImageBitmap? = remember(base64Data) {
         try {
             base64Data?.let {
-                val imageBytes = Base64.decode(it, Base64.DEFAULT)
-                BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)?.asImageBitmap()
-            }
-        } catch (e: Exception) {
-            null
-        }
-    }
+                Log.d("Base64Image", "Raw base64 (start): ${it.take(100)}")
 
-    if (imageBitmap != null) {
-        Image(
-            bitmap = imageBitmap,
-            contentDescription = contentDescription,
-            modifier = modifier,
-            contentScale = contentScale
-        )
-    } else {
-        Image(
-            painter = painterResource(id = R.drawable.ic_placeholder),
-            contentDescription = "Placeholder",
-            modifier = modifier,
-            contentScale = contentScale
-        )
-    }
-}
-*/
-@Composable
-fun Base64Image(
-    base64Data: String?,
-    contentDescription: String?,
-    modifier: Modifier = Modifier,
-    contentScale: ContentScale = ContentScale.Crop
-) {
-    val imageBitmap: ImageBitmap? = remember(base64Data) {
-        try {
-            base64Data?.let {
-                val cleanBase64 = it.substringAfter("base64,", it)
+                val cleanBase64 = it
+                    .substringAfter("base64,", it)
+                    .replace("\n", "")
+                    .replace("\r", "")
+                    .replace(" ", "")
+
                 val imageBytes = Base64.decode(cleanBase64, Base64.DEFAULT)
-                val bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
-
+                val options = BitmapFactory.Options().apply {
+                    inPreferredConfig = Bitmap.Config.ARGB_8888
+                }
+                val bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size, options)
                 Log.d("Base64Image", "Bitmap decode result: ${bitmap != null}")
                 bitmap?.asImageBitmap()
             }
         } catch (e: Exception) {
             e.printStackTrace()
+            Log.e("Base64Image", "Decode failed: ${e.message}")
             null
         }
     }
@@ -355,4 +329,3 @@ fun Base64Image(
         )
     }
 }
-

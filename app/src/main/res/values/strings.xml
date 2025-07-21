@@ -36,4 +36,10 @@
     <string name="tab_all_items">All Items</string>
     <string name="tab_menu_categories">Menu Categories</string>
     <string name="add_new_item">Add New Item</string>
+    <string name="order_status_new">New</string>
+    <string name="order_status_accepted">Accepted</string>
+    <string name="order_status_rejected">Rejected</string>
+    <string name="order_status_served">Served</string>
+    <string name="accept_button">Accept</string>
+    <string name="reject_button">Reject</string>
 </resources>

@@ -37,12 +37,7 @@ navController : NavController
             TopAppBar(
                 title = { Row(verticalAlignment = Alignment.CenterVertically) {
                     // --- THIS IS THE NEW IMAGE COMPOSABLE ---
-                    Image(
-                        painter = rememberAsyncImagePainter(
-                            model = restaurant.logoBase64?.let { "data:image/jpeg;base64,$it" },
-                            error = painterResource(id = R.drawable.restaurant),
-                            placeholder = painterResource(id = R.drawable.restaurant)
-                        ),
+                    Base64Image(base64Data =restaurant.logoBase64,
                         contentDescription = "Restaurant Logo",
                         modifier = Modifier
                             .size(40.dp) // Set a size for the icon
