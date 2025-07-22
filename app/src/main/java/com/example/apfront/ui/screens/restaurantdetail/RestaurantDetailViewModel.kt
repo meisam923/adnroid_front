@@ -3,102 +3,100 @@ package com.example.apfront.ui.screens.restaurantdetail
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.apfront.data.CartManager
+import com.example.apfront.data.model.CartItem
 import com.example.apfront.data.remote.dto.FoodItemDto
 import com.example.apfront.data.remote.dto.VendorDetailResponse
+import com.example.apfront.data.repository.FavoriteRepository
 import com.example.apfront.data.repository.VendorRepository
 import com.example.apfront.util.Resource
 import com.example.apfront.util.SessionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-
-data class CartItem(
-    val item: FoodItemDto,
-    val quantity: Int
-)
 
 data class RestaurantDetailUiState(
     val isLoading: Boolean = false,
     val restaurantDetails: VendorDetailResponse? = null,
     val error: String? = null,
     val cart: List<CartItem> = emptyList(),
-    val cartTotal: Double = 0.0
+    val isFavorite: Boolean = false
 )
 
 @HiltViewModel
 class RestaurantDetailViewModel @Inject constructor(
-    private val repository: VendorRepository,
+    private val vendorRepository: VendorRepository,
     private val sessionManager: SessionManager,
+    private val favoriteRepository: FavoriteRepository,
+    val cartManager: CartManager,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(RestaurantDetailUiState())
-    val uiState = _uiState.asStateFlow()
+    // This private state holds the data fetched from the API, including the favorite status
+    private val _apiState = MutableStateFlow(RestaurantDetailUiState())
+
+    // The final UI state is a combination of the API data and the shared cart data
+    val uiState = combine(_apiState, cartManager.cart) { apiState, cart ->
+        apiState.copy(cart = cart)
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = RestaurantDetailUiState()
+    )
 
     private val restaurantId: Int = checkNotNull(savedStateHandle["restaurantId"])
 
     init {
         loadRestaurantDetails()
+        checkIfFavorite()
     }
 
     fun onAddItem(item: FoodItemDto) {
-        _uiState.update { currentState ->
-            val cart = currentState.cart.toMutableList()
-            val existingItem = cart.find { it.item.id == item.id }
-
-            if (existingItem != null) {
-                val index = cart.indexOf(existingItem)
-                cart[index] = existingItem.copy(quantity = existingItem.quantity + 1)
-            } else {
-                cart.add(CartItem(item = item, quantity = 1))
-            }
-
-            currentState.copy(cart = cart, cartTotal = calculateTotal(cart))
-        }
+        cartManager.addItem(item, restaurantId)
     }
 
     fun onRemoveItem(item: FoodItemDto) {
-        _uiState.update { currentState ->
-            val cart = currentState.cart.toMutableList()
-            val existingItem = cart.find { it.item.id == item.id }
-
-            if (existingItem != null) {
-                if (existingItem.quantity > 1) {
-                    val index = cart.indexOf(existingItem)
-                    cart[index] = existingItem.copy(quantity = existingItem.quantity - 1)
-                } else {
-                    cart.remove(existingItem)
-                }
-            }
-
-            currentState.copy(cart = cart, cartTotal = calculateTotal(cart))
-        }
-    }
-
-    private fun calculateTotal(cart: List<CartItem>): Double {
-        return cart.sumOf { it.item.price * it.quantity }
+        cartManager.removeItem(item)
     }
 
     private fun loadRestaurantDetails() {
         viewModelScope.launch {
-            _uiState.value = RestaurantDetailUiState(isLoading = true)
-            val token = sessionManager.getAuthToken()
-            if (token == null) {
-                _uiState.value = RestaurantDetailUiState(error = "Not authenticated.")
-                return@launch
+            _apiState.update { it.copy(isLoading = true) }
+            val token = sessionManager.getAuthToken() ?: return@launch
+
+            when (val result = vendorRepository.getVendorDetails(token, restaurantId)) {
+                is Resource.Success -> _apiState.update { it.copy(isLoading = false, restaurantDetails = result.data) }
+                is Resource.Error -> _apiState.update { it.copy(isLoading = false, error = result.message) }
+                else -> {}
+            }
+        }
+    }
+
+    private fun checkIfFavorite() {
+        viewModelScope.launch {
+            val token = sessionManager.getAuthToken() ?: return@launch
+            val result = favoriteRepository.getFavorites(token) // Get the result first
+            if (result is Resource.Success) {
+                val isFav = result.data?.any { it.id == restaurantId } == true
+                _apiState.update { it.copy(isFavorite = isFav) }
+            }
+        }
+    }
+
+    fun toggleFavorite() {
+        viewModelScope.launch {
+            val token = sessionManager.getAuthToken() ?: return@launch
+            val isCurrentlyFavorite = _apiState.value.isFavorite
+
+            val result = if (isCurrentlyFavorite) {
+                favoriteRepository.removeFavorite(token, restaurantId)
+            } else {
+                favoriteRepository.addFavorite(token, restaurantId)
             }
 
-            when (val result = repository.getVendorDetails(token, restaurantId)) {
-                is Resource.Success -> {
-                    _uiState.value = RestaurantDetailUiState(restaurantDetails = result.data)
-                }
-                is Resource.Error -> {
-                    _uiState.value = RestaurantDetailUiState(error = result.message)
-                }
-                else -> {}
+            if (result is Resource.Success) {
+                _apiState.update { it.copy(isFavorite = !isCurrentlyFavorite) }
             }
         }
     }

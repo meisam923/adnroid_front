@@ -1,8 +1,8 @@
 package com.example.apfront.ui.screens.profile
 
 import android.widget.Toast
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -30,7 +30,6 @@ fun ProfileScreen(
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
 
-    // State for the text fields
     var fullName by remember { mutableStateOf("") }
     var phone by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
@@ -38,7 +37,6 @@ fun ProfileScreen(
     var bankName by remember { mutableStateOf("") }
     var accountNumber by remember { mutableStateOf("") }
 
-    // This effect will run once when uiState.user is successfully loaded
     LaunchedEffect(uiState.user) {
         uiState.user?.let {
             fullName = it.fullName
@@ -75,7 +73,6 @@ fun ProfileScreen(
                         .verticalScroll(rememberScrollState()),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    // Profile Image Placeholder
                     Box(
                         modifier = Modifier
                             .size(120.dp)
@@ -90,13 +87,11 @@ fun ProfileScreen(
                             tint = MaterialTheme.colorScheme.onSecondaryContainer
                         )
                     }
-                    // --- FIX: Added button for changing profile picture ---
                     TextButton(onClick = { /* TODO: Launch image picker */ }) {
                         Text("Change Picture")
                     }
                     Spacer(modifier = Modifier.height(24.dp))
 
-                    // Text Fields for all user info
                     OutlinedTextField(value = fullName, onValueChange = { fullName = it }, label = { Text("Full Name") }, modifier = Modifier.fillMaxWidth())
                     Spacer(modifier = Modifier.height(16.dp))
                     OutlinedTextField(value = phone, onValueChange = { phone = it }, label = { Text("Phone Number") }, modifier = Modifier.fillMaxWidth())
@@ -106,15 +101,23 @@ fun ProfileScreen(
                     OutlinedTextField(value = address, onValueChange = { address = it }, label = { Text("Address") }, modifier = Modifier.fillMaxWidth())
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // --- FIX: Added Bank Info fields that only show for Seller/Courier ---
                     if (uiState.user?.role?.equals("SELLER", ignoreCase = true) == true || uiState.user?.role?.equals("COURIER", ignoreCase = true) == true) {
                         Text("Bank Information", style = MaterialTheme.typography.titleMedium, modifier = Modifier.fillMaxWidth())
                         Spacer(modifier = Modifier.height(8.dp))
                         OutlinedTextField(value = bankName, onValueChange = { bankName = it }, label = { Text("Bank Name") }, modifier = Modifier.fillMaxWidth())
                         Spacer(modifier = Modifier.height(16.dp))
                         OutlinedTextField(value = accountNumber, onValueChange = { accountNumber = it }, label = { Text("Account Number") }, modifier = Modifier.fillMaxWidth())
-                        Spacer(modifier = Modifier.height(24.dp))
                     }
+
+                    // --- THIS IS THE FIX ---
+                    // Add a clickable row for favorites between the main fields and the buttons.
+                    Divider(modifier = Modifier.padding(vertical = 24.dp))
+                    ListItem(
+                        headlineContent = { Text("My Favorites") },
+                        modifier = Modifier.clickable { navController.navigate("favorites") }
+                    )
+                    Divider(modifier = Modifier.padding(vertical = 24.dp))
+                    // --- END OF FIX ---
 
                     Button(
                         onClick = { viewModel.updateProfile(fullName, phone, email, address, bankName, accountNumber) },
