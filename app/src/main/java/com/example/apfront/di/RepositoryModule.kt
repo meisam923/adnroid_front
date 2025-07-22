@@ -2,6 +2,8 @@ package com.example.apfront.di
 
 import com.example.apfront.data.repository.AuthRepository
 import com.example.apfront.data.repository.AuthRepositoryImpl // FIX: Changed to 'Impl'
+import com.example.apfront.data.repository.ItemRepository
+import com.example.apfront.data.repository.ItemRepositoryImp
 import com.example.apfront.data.repository.RestaurantRepository
 import com.example.apfront.data.repository.RestaurantRepositoryImpl // FIX: Changed to 'Impl'
 import com.example.apfront.data.repository.VendorRepository
@@ -35,4 +37,10 @@ abstract class RepositoryModule {
     abstract fun bindVendorRepository(
         vendorRepositoryImp: VendorRepositoryImp
     ): VendorRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindItemRepository(
+        itemRepositoryImp: ItemRepositoryImp
+    ): ItemRepository
 }
