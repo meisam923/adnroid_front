@@ -1,23 +1,28 @@
+
 package com.example.apfront.ui.screens
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.*
 import androidx.navigation.navArgument
-import com.example.apfront.MainViewModel
 import com.example.apfront.ui.navigation.BottomNavItem
+import com.example.apfront.ui.screens.checkout.CheckoutScreen
+import com.example.apfront.ui.screens.favorites.FavoritesScreen
 import com.example.apfront.ui.screens.itemlist.ItemListScreen
+import com.example.apfront.ui.screens.orderdetail.OrderDetailScreen
+import com.example.apfront.ui.screens.orderdetail.OrderSuccessScreen
+import com.example.apfront.ui.screens.orderhistory.OrderHistoryScreen
 import com.example.apfront.ui.screens.profile.ProfileScreen
 import com.example.apfront.ui.screens.restaurantdetail.RestaurantDetailScreen
 import com.example.apfront.ui.screens.seller_hub.SellerHubScreen
 import com.example.apfront.ui.screens.vendorlist.VendorListScreen
+import com.example.apfront.ui.screens.wallet.WalletScreen
 
 @Composable
 fun MainScreen(
@@ -31,7 +36,9 @@ fun MainScreen(
     val items = listOf(
         BottomNavItem.Home,
         BottomNavItem.Search,
-        BottomNavItem.Profile,
+        BottomNavItem.Orders,
+        BottomNavItem.Wallet,
+        BottomNavItem.Profile
     )
 
     Scaffold(
@@ -69,21 +76,45 @@ fun MainScreen(
                 ProfileScreen(
                     navController = navController,
                     onLogout = {
-                        rootNavController.navigate("login") {
-                            popUpTo(0)
+                        rootNavController.navigate("auth_flow") {
+                            popUpTo("main_flow/{userRole}") { inclusive = true }
                         }
                     }
                 )
             }
-
+            composable(BottomNavItem.Search.route) {
+                ItemListScreen(navController = navController)
+            }
+            composable(BottomNavItem.Orders.route) {
+                OrderHistoryScreen(navController = navController)
+            }
+            composable(BottomNavItem.Wallet.route) {
+                WalletScreen(navController = navController)
+            }
             composable(
                 route = "restaurant_detail/{restaurantId}",
                 arguments = listOf(navArgument("restaurantId") { type = NavType.IntType })
             ) {
-                RestaurantDetailScreen()
+                RestaurantDetailScreen(navController = navController)
             }
-            composable(BottomNavItem.Search.route) {
-                ItemListScreen(navController = navController)
+            composable(
+                route = "order_detail/{orderId}",
+                arguments = listOf(navArgument("orderId") { type = NavType.LongType })
+            ) {
+                OrderDetailScreen(navController = navController)
+            }
+            composable(route = "checkout") {
+                CheckoutScreen(navController = navController)
+            }
+            composable(
+                route = "order_success/{orderId}",
+                arguments = listOf(navArgument("orderId") { type = NavType.LongType })
+            ) {
+
+                OrderSuccessScreen(navController = navController)
+            }
+            composable("favorites") {
+                FavoritesScreen(navController = navController)
             }
         }
     }

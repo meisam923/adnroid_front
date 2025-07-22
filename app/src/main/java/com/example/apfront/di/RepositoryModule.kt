@@ -2,8 +2,16 @@ package com.example.apfront.di
 
 import com.example.apfront.data.repository.AuthRepository
 import com.example.apfront.data.repository.AuthRepositoryImpl // FIX: Changed to 'Impl'
+import com.example.apfront.data.repository.CouponRepository
+import com.example.apfront.data.repository.CouponRepositoryImp
+import com.example.apfront.data.repository.FavoriteRepository
+import com.example.apfront.data.repository.FavoriteRepositoryImp
 import com.example.apfront.data.repository.ItemRepository
 import com.example.apfront.data.repository.ItemRepositoryImp
+import com.example.apfront.data.repository.OrderRepository
+import com.example.apfront.data.repository.OrderRepositoryImp
+import com.example.apfront.data.repository.PaymentRepository
+import com.example.apfront.data.repository.PaymentRepositoryImp
 import com.example.apfront.data.repository.RestaurantRepository
 import com.example.apfront.data.repository.RestaurantRepositoryImpl // FIX: Changed to 'Impl'
 import com.example.apfront.data.repository.VendorRepository
@@ -43,4 +51,16 @@ abstract class RepositoryModule {
     abstract fun bindItemRepository(
         itemRepositoryImp: ItemRepositoryImp
     ): ItemRepository
+
+    @Binds @Singleton
+    abstract fun bindCouponRepository(imp: CouponRepositoryImp): CouponRepository
+
+    @Binds @Singleton
+    abstract fun bindOrderRepository(imp: OrderRepositoryImp): OrderRepository
+
+    @Binds @Singleton
+    abstract fun bindPaymentRepository(imp: PaymentRepositoryImp): PaymentRepository
+
+    @Binds @Singleton
+    abstract fun bindFavoriteRepository(imp: FavoriteRepositoryImp): FavoriteRepository
 }

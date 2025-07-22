@@ -3,7 +3,9 @@ package com.example.apfront.di
 import com.example.apfront.data.remote.AuthAuthenticator
 import com.example.apfront.data.remote.api.*
 import com.example.apfront.util.Constants
+import com.example.apfront.util.LocalDateTimeAdapter
 import com.example.apfront.util.SessionManager
+import com.google.gson.GsonBuilder
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -12,6 +14,8 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.time.LocalDateTime
+import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
 @Module
@@ -28,31 +32,36 @@ object AppModule {
         return AuthAuthenticator(sessionManager, tokenRefreshApiService)
     }
 
-    // 2. This provides the custom OkHttpClient that USES the Authenticator.
     @Provides
     @Singleton
     fun provideOkHttpClient(
         authenticator: AuthAuthenticator
     ): OkHttpClient {
-        // 1. Create the logger
         val logging = HttpLoggingInterceptor()
-        logging.setLevel(HttpLoggingInterceptor.Level.BODY) // Log everything: headers and body
+        logging.setLevel(HttpLoggingInterceptor.Level.BODY)
 
-        // 2. Build the client, now with the logger attached
         return OkHttpClient.Builder()
-            .addInterceptor(logging) // Add the logger as an interceptor
+            .addInterceptor(logging)
             .authenticator(authenticator)
+            .connectTimeout(120, TimeUnit.SECONDS) // 2 minutes
+            .readTimeout(120, TimeUnit.SECONDS)    // 2 minutes
+            .writeTimeout(120, TimeUnit.SECONDS)   // 2 minutes
             .build()
     }
-
     // 3. This is your main Retrofit instance. It now uses the custom OkHttpClient.
     @Provides
     @Singleton
     fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
+        // Create a custom Gson instance that knows about our adapter
+        val gson = GsonBuilder()
+            .registerTypeAdapter(LocalDateTime::class.java, LocalDateTimeAdapter())
+            .create()
+
         return Retrofit.Builder()
             .baseUrl(Constants.BASE_URL)
-            .client(okHttpClient) // Use the client with the authenticator
-            .addConverterFactory(GsonConverterFactory.create())
+            .client(okHttpClient)
+            // Use our custom Gson instance for JSON conversion
+            .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
     }
 
@@ -91,4 +100,14 @@ object AppModule {
     fun provideItemApiService(retrofit: Retrofit): ItemApiService {
         return retrofit.create(ItemApiService::class.java)
     }
+
+    @Provides @Singleton
+    fun provideCouponApiService(retrofit: Retrofit): CouponApiService = retrofit.create(CouponApiService::class.java)
+
+    @Provides @Singleton
+    fun provideOrderApiService(retrofit: Retrofit): OrderApiService = retrofit.create(OrderApiService::class.java)
+    @Provides @Singleton
+    fun providePaymentApiService(retrofit: Retrofit): PaymentApiService = retrofit.create(PaymentApiService::class.java)
+    @Provides @Singleton
+    fun provideFavoriteApiService(retrofit: Retrofit): FavoriteApiService = retrofit.create(FavoriteApiService::class.java)
 }

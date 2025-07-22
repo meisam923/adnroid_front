@@ -5,6 +5,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -14,24 +16,40 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.example.apfront.data.remote.dto.FoodItemDto
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RestaurantDetailScreen(
+    navController: NavController,
     viewModel: RestaurantDetailViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val cartTotal = uiState.cart.sumOf { it.item.price * it.quantity }
 
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text(uiState.restaurantDetails?.vendor?.name ?: "Loading...") })
+            TopAppBar(
+                title = { Text(uiState.restaurantDetails?.vendor?.name ?: "Loading...") },
+                actions = {
+                    IconButton(onClick = { viewModel.toggleFavorite() }) {
+                        Icon(
+                            imageVector = if (uiState.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                            contentDescription = "Toggle Favorite",
+                            tint = if (uiState.isFavorite) MaterialTheme.colorScheme.primary else LocalContentColor.current
+                        )
+                    }
+                }
+            )
         },
         bottomBar = {
             if (uiState.cart.isNotEmpty()) {
                 BottomAppBar {
                     Row(
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -39,8 +57,9 @@ fun RestaurantDetailScreen(
                             text = "${uiState.cart.sumOf { it.quantity }} items",
                             style = MaterialTheme.typography.titleMedium
                         )
-                        Button(onClick = { /* TODO: Navigate to checkout screen */ }) {
-                            Text(text = "Order Now - $${"%.2f".format(uiState.cartTotal)}")
+                        // FIX: The button now navigates to the checkout screen
+                        Button(onClick = { navController.navigate("checkout") }) {
+                            Text(text = "Order Now - $${"%.2f".format(cartTotal)}")
                         }
                     }
                 }
@@ -48,7 +67,9 @@ fun RestaurantDetailScreen(
         }
     ) { paddingValues ->
         Box(
-            modifier = Modifier.fillMaxSize().padding(paddingValues),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues),
             contentAlignment = Alignment.Center
         ) {
             if (uiState.isLoading) {
@@ -77,6 +98,7 @@ fun RestaurantDetailScreen(
                                 onAddItem = { viewModel.onAddItem(foodItem) },
                                 onRemoveItem = { viewModel.onRemoveItem(foodItem) }
                             )
+                            // FIX: Changed HorizontalDivider to Divider
                             Divider()
                         }
                     }
@@ -94,7 +116,9 @@ fun FoodItemRow(
     onRemoveItem: () -> Unit
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(modifier = Modifier.weight(1f)) {
@@ -106,7 +130,6 @@ fun FoodItemRow(
         Row(verticalAlignment = Alignment.CenterVertically) {
             if (quantityInCart > 0) {
                 IconButton(onClick = onRemoveItem) {
-                    // This is the correct reference
                     Icon(imageVector = Icons.Default.Remove, contentDescription = "Remove one")
                 }
                 Text(text = "$quantityInCart", modifier = Modifier.padding(horizontal = 8.dp))
