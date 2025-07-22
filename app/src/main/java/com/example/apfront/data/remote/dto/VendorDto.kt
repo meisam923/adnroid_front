@@ -19,11 +19,14 @@ data class VendorRestaurantDto(
 )
 
 data class FoodItemDto(
-    val id: Int,
-    val name: String,
-    val description: String,
-    val price: Double,
-    @SerializedName("image_url") val imageUrl: String?
+    @SerializedName("id") val id: Int,
+    @SerializedName("name") val name: String,
+    @SerializedName("description") val description: String,
+    @SerializedName("price") val price: Double,
+    @SerializedName("imageBase64") val imageUrl: String?,
+    @SerializedName("vendor_id") val vendorId: Int,
+    @SerializedName("supply") val supply: Int,
+    @SerializedName("keywords") val keywords: List<String>
 )
 
 data class VendorDetailResponse(

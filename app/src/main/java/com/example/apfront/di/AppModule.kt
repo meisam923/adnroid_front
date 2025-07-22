@@ -85,4 +85,10 @@ object AppModule {
             .build()
             .create(TokenRefreshApiService::class.java)
     }
+
+    @Provides
+    @Singleton
+    fun provideItemApiService(retrofit: Retrofit): ItemApiService {
+        return retrofit.create(ItemApiService::class.java)
+    }
 }

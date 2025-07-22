@@ -13,6 +13,7 @@ import androidx.navigation.compose.*
 import androidx.navigation.navArgument
 import com.example.apfront.MainViewModel
 import com.example.apfront.ui.navigation.BottomNavItem
+import com.example.apfront.ui.screens.itemlist.ItemListScreen
 import com.example.apfront.ui.screens.profile.ProfileScreen
 import com.example.apfront.ui.screens.restaurantdetail.RestaurantDetailScreen
 import com.example.apfront.ui.screens.seller_hub.SellerHubScreen
@@ -29,6 +30,7 @@ fun MainScreen(
 
     val items = listOf(
         BottomNavItem.Home,
+        BottomNavItem.Search,
         BottomNavItem.Profile,
     )
 
@@ -80,7 +82,9 @@ fun MainScreen(
             ) {
                 RestaurantDetailScreen()
             }
-            
+            composable(BottomNavItem.Search.route) {
+                ItemListScreen(navController = navController)
+            }
         }
     }
 }

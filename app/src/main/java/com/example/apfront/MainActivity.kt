@@ -21,10 +21,11 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.*
 import androidx.navigation.navArgument
 import com.example.apfront.ui.navigation.BottomNavItem
+import com.example.apfront.ui.screens.MainScreen
 import com.example.apfront.ui.screens.auth.LoginScreen
 import com.example.apfront.ui.screens.auth.RegisterScreen
+import com.example.apfront.ui.screens.itemlist.ItemListScreen
 import com.example.apfront.ui.screens.profile.ProfileScreen
-import com.example.apfront.ui.screens.restaurant_dashboard.CreateEditItemScreen
 import com.example.apfront.ui.screens.restaurantdetail.RestaurantDetailScreen
 import com.example.apfront.ui.screens.seller_hub.SellerHubScreen
 import com.example.apfront.ui.screens.vendorlist.VendorListScreen
@@ -63,37 +64,33 @@ fun AppNavigation(
     NavHost(navController = navController, startDestination = "splash") {
 
         composable("splash") {
-            // This screen decides the initial route based on login status.
             LaunchedEffect(startState) {
                 when (val state = startState) {
                     is AppStartState.UserLoggedIn -> {
-                        // If user is already logged in, go to the main flow, passing the role
-                        navController.navigate("main_flow/${state.role}") {
+                        navController.navigate("main/${state.role}") {
                             popUpTo("splash") { inclusive = true }
                         }
                     }
                     is AppStartState.UserLoggedOut -> {
-                        // If logged out, go to the authentication flow
-                        navController.navigate("auth_flow") {
+                        navController.navigate("auth") {
                             popUpTo("splash") { inclusive = true }
                         }
                     }
                     is AppStartState.Loading -> { /* Wait for state change */ }
                 }
             }
-            // Show a loading indicator while deciding
             Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
                 CircularProgressIndicator()
             }
         }
 
-        // The "auth_flow" is a nested graph for login and register screens
-        navigation(startDestination = "login", route = "auth_flow") {
+        // The "auth" route is a nested graph for login and register screens
+        navigation(startDestination = "login", route = "auth") {
             composable("login") {
                 LoginScreen(
                     onLoginSuccess = { role ->
-                        navController.navigate("main_flow/$role") {
-                            popUpTo("auth_flow") { inclusive = true }
+                        navController.navigate("main/$role") {
+                            popUpTo("auth") { inclusive = true }
                         }
                     },
                     onNavigateToRegister = { navController.navigate("register") }
@@ -102,22 +99,25 @@ fun AppNavigation(
             composable("register") {
                 RegisterScreen(
                     onRegisterSuccess = { role ->
-                        navController.navigate("main_flow/$role") {
-                            popUpTo("auth_flow") { inclusive = true }
+                        navController.navigate("main/$role") {
+                            popUpTo("auth") { inclusive = true }
                         }
                     }
                 )
             }
         }
 
-        // The "main_flow" is the destination for the entire logged-in experience
-        composable("main_flow/{userRole}") { backStackEntry ->
+        // The "main" route is the destination for the entire logged-in experience
+        composable(
+            route = "main/{userRole}",
+            arguments = listOf(navArgument("userRole") { type = NavType.StringType })
+        ) { backStackEntry ->
             val userRole = backStackEntry.arguments?.getString("userRole") ?: "BUYER"
             MainScreen(
                 userRole = userRole,
                 onLogout = {
-                    navController.navigate("auth_flow") {
-                        popUpTo("main_flow/{userRole}") { inclusive = true }
+                    navController.navigate("auth") {
+                        popUpTo("main/{userRole}") { inclusive = true }
                     }
                 }
             )
@@ -140,6 +140,7 @@ fun MainScreen(
 
     val bottomNavItems = listOf(
         BottomNavItem.Home,
+        BottomNavItem.Search,
         BottomNavItem.Profile,
     )
 
@@ -182,24 +183,14 @@ fun MainScreen(
                     onLogout = onLogout
                 )
             }
+            composable(BottomNavItem.Search.route) {
+                ItemListScreen(navController = navController)
+            }
             composable(
                 route = "restaurant_detail/{restaurantId}",
                 arguments = listOf(navArgument("restaurantId") { type = NavType.IntType })
             ) {
                 RestaurantDetailScreen()
-            }
-            composable(
-                route = "create_edit_item/{restaurantId}?itemId={itemId}",
-                arguments = listOf(
-                    navArgument("restaurantId") { type = NavType.IntType },
-                    navArgument("itemId") { type = NavType.IntType; defaultValue = -1 }
-                )
-            ) { backStackEntry ->
-                val restaurantId = backStackEntry.arguments?.getInt("restaurantId") ?: 0
-                CreateEditItemScreen(
-                    navController = navController,
-                    restaurantId = restaurantId
-                )
             }
         }
     }
