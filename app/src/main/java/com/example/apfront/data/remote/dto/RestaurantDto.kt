@@ -63,13 +63,42 @@ data class UpdateOrderStatusRequest(
     val status: String // e.g., "accepted", "rejected", "served"
 )
 
+
+data class OrderItemDto(
+    val id: Int,
+    val name: String,
+    @SerializedName("pricePerItem") val pricePerItem: Double, // Use Double for BigDecimal
+    @SerializedName("totalPriceForItem") val totalPriceForItem: Double,
+    val quantity: Int
+)
+
+// --- UPDATED: OrderDto to match your new backend response ---
 data class OrderDto(
     val id: Int,
     @SerializedName("delivery_address") val deliveryAddress: String,
     @SerializedName("customer_id") val customerId: Int,
     @SerializedName("vendor_id") val vendorId: Int,
-    @SerializedName("pay_price") val payPrice: Int,
-    val status: String
-    // Add any other fields you need from the order object
+    @SerializedName("coupon_id") val couponId: Int?,
+    // This now uses the new OrderItemDto and matches the "order_items" key
+    @SerializedName("items") val items: List<OrderItemDto>,
+    @SerializedName("raw_price") val rawPrice: Double,
+    @SerializedName("tax_fee") val taxFee: Double,
+    @SerializedName("additional_fee") val additionalFee: Double,
+    @SerializedName("courier_fee") val courierFee: Double,
+    @SerializedName("pay_price") val payPrice: Double,
+    @SerializedName("courier_id") val courierId: Int?,
+    val status: String,
+    val restaurantStatus: String,
+    @SerializedName("created_at") val createdAt: String,
+    @SerializedName("updated_at") val updatedAt: String,
+    @SerializedName("reviewDto") val review: ReviewDto?
+)
+
+data class ReviewDto(
+    @SerializedName("id")val id: Long,
+    val rating: Int?,
+    val comment: String?,
+    @SerializedName("base64Images") val base64Images: List<String>?,
+    @SerializedName("createdAt") val createdAt: String?
 )
 

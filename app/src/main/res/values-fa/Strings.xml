@@ -36,4 +36,10 @@
     <string name="tab_all_items">همه موارد</string>
     <string name="tab_menu_categories">دسته‌بندی‌های منو</string>
     <string name="add_new_item">افزودن مورد جدید</string>
+    <string name="order_status_new">جدید</string>
+    <string name="order_status_accepted">پذیرفته شده</string>
+    <string name="order_status_rejected">رد شده</string>
+    <string name="order_status_served">سرو شده</string>
+    <string name="accept_button">قبول</string>
+    <string name="reject_button">رد</string>
 </resources>

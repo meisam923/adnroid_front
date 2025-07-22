@@ -59,7 +59,12 @@ interface RestaurantApiService {
     ): Response<Unit>
 
     // --- Menu Category Management ---
-
+    @DELETE("restaurants/{id}/menu/{title}")
+    suspend fun deleteMenuCategory(
+        @Header("Authorization") token: String,
+        @Path("id") restaurantId: Int,
+        @Path("title") menuTitle: String
+    ): Response<Unit>
     @POST("restaurants/{id}/menu")
     suspend fun createMenuCategory(
         @Header("Authorization") token: String,
@@ -89,7 +94,8 @@ interface RestaurantApiService {
     suspend fun getRestaurantOrders(
         @Header("Authorization") token: String,
         @Path("id") restaurantId: Int,
-        @Query("status") status: String? // To filter by status (e.g., "accepted")
+        @Query("status") status: String?,// To filter by status (e.g., "accepted")
+        @Query("search") search: String?,
     ): Response<List<OrderDto>>
 
     @PATCH("restaurants/orders/{order_id}")
@@ -98,4 +104,5 @@ interface RestaurantApiService {
         @Path("order_id") orderId: Int,
         @Body request: UpdateOrderStatusRequest
     ): Response<Unit>
+
 }
