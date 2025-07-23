@@ -1,5 +1,6 @@
 package com.example.apfront.ui.screens.restaurantdetail
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -21,7 +22,7 @@ import com.example.apfront.data.remote.dto.FoodItemDto
 @Composable
 fun RestaurantDetailScreen(
     navController: NavController,
-    viewModel: RestaurantDetailViewModel = hiltViewModel() // Hilt automatically provides the ViewModel
+    viewModel: RestaurantDetailViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val cartTotal = uiState.cart.sumOf { it.item.price * it.quantity }
@@ -89,9 +90,12 @@ fun RestaurantDetailScreen(
                                 item = foodItem,
                                 quantityInCart = uiState.cart.find { it.item.id == foodItem.id }?.quantity ?: 0,
                                 onAddItem = { viewModel.onAddItem(foodItem) },
-                                onRemoveItem = { viewModel.onRemoveItem(foodItem) }
+                                onRemoveItem = { viewModel.onRemoveItem(foodItem) },
+                                // --- THIS IS THE FIX ---
+                                // Pass the navigation logic to the onClick parameter
+                                onClick = { navController.navigate("item_detail/${foodItem.id}") }
                             )
-                            Divider()
+                            HorizontalDivider()
                         }
                     }
                 }
@@ -105,10 +109,14 @@ fun FoodItemRow(
     item: FoodItemDto,
     quantityInCart: Int,
     onAddItem: () -> Unit,
-    onRemoveItem: () -> Unit
+    onRemoveItem: () -> Unit,
+    onClick: () -> Unit // Add the onClick parameter
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick) // Apply the clickable modifier to the whole row
+            .padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(modifier = Modifier.weight(1f)) {

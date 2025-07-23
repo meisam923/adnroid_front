@@ -39,10 +39,10 @@ fun ProfileScreen(
 
     LaunchedEffect(uiState.user) {
         uiState.user?.let {
-            fullName = it.fullName
-            phone = it.phone
-            email = it.email
-            address = it.address
+            fullName = it.fullName ?: ""
+            phone = it.phone ?: ""
+            email = it.email ?: ""
+            address = it.address ?: ""
             bankName = it.bankInfo?.bankName ?: ""
             accountNumber = it.bankInfo?.accountNumber ?: ""
         }
@@ -109,15 +109,12 @@ fun ProfileScreen(
                         OutlinedTextField(value = accountNumber, onValueChange = { accountNumber = it }, label = { Text("Account Number") }, modifier = Modifier.fillMaxWidth())
                     }
 
-                    // --- THIS IS THE FIX ---
-                    // Add a clickable row for favorites between the main fields and the buttons.
                     Divider(modifier = Modifier.padding(vertical = 24.dp))
                     ListItem(
                         headlineContent = { Text("My Favorites") },
                         modifier = Modifier.clickable { navController.navigate("favorites") }
                     )
                     Divider(modifier = Modifier.padding(vertical = 24.dp))
-                    // --- END OF FIX ---
 
                     Button(
                         onClick = { viewModel.updateProfile(fullName, phone, email, address, bankName, accountNumber) },

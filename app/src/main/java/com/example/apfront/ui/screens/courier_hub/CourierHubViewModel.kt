@@ -31,11 +31,20 @@ class CourierHubViewModel @Inject constructor(
 
     fun loadAvailableDeliveries() {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true) }
+            _uiState.update { it.copy(isLoading = true, error = null) }
             val token = sessionManager.getAuthToken() ?: return@launch
             when (val result = repository.getAvailableDeliveries(token)) {
-                is Resource.Success -> _uiState.update { it.copy(isLoading = false, availableDeliveries = result.data ?: emptyList()) }
-                is Resource.Error -> _uiState.update { it.copy(isLoading = false, error = result.message) }
+                is Resource.Success -> {
+                    _uiState.update { it.copy(isLoading = false, availableDeliveries = result.data ?: emptyList()) }
+                }
+                is Resource.Error -> {
+                    val errorMessage = if (result.message?.contains("verified", ignoreCase = true) == true) {
+                        "Your courier account is not yet verified. Please wait for admin approval."
+                    } else {
+                        result.message ?: "An unknown error occurred."
+                    }
+                    _uiState.update { it.copy(isLoading = false, error = errorMessage) }
+                }
                 else -> {}
             }
         }

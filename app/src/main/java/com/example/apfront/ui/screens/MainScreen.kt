@@ -13,8 +13,7 @@ import androidx.navigation.navArgument
 import com.example.apfront.ui.navigation.BottomNavItem
 import com.example.apfront.ui.screens.checkout.CheckoutScreen
 import com.example.apfront.ui.screens.courier_hub.CourierHubScreen
-import com.example.apfront.ui.screens.editrating.EditRatingScreen
-import com.example.apfront.ui.screens.favorites.FavoritesScreen
+import com.example.apfront.ui.screens.itemdetail.ItemDetailScreen
 import com.example.apfront.ui.screens.itemlist.ItemListScreen
 import com.example.apfront.ui.screens.orderdetail.OrderDetailScreen
 import com.example.apfront.ui.screens.orderdetail.OrderSuccessScreen
@@ -22,7 +21,6 @@ import com.example.apfront.ui.screens.orderhistory.OrderHistoryScreen
 import com.example.apfront.ui.screens.profile.ProfileScreen
 import com.example.apfront.ui.screens.restaurantdetail.RestaurantDetailScreen
 import com.example.apfront.ui.screens.seller_hub.SellerHubScreen
-import com.example.apfront.ui.screens.submitrating.SubmitRatingScreen
 import com.example.apfront.ui.screens.vendorlist.VendorListScreen
 import com.example.apfront.ui.screens.wallet.WalletScreen
 
@@ -35,30 +33,47 @@ fun MainScreen(
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
-    val bottomNavItems = listOf(
-        BottomNavItem.Home,
-        BottomNavItem.Search,
-        BottomNavItem.Orders,
-        BottomNavItem.Wallet,
-        BottomNavItem.Profile
-    )
+    // --- THIS IS THE FIX ---
+    // We now define different sets of navigation items based on the user's role.
+    val bottomNavItems = when (userRole.uppercase()) {
+        "BUYER" -> listOf(
+            BottomNavItem.Home,
+            BottomNavItem.Search,
+            BottomNavItem.Orders,
+            BottomNavItem.Wallet,
+            BottomNavItem.Profile
+        )
+        "SELLER" -> listOf(
+            BottomNavItem.Home, // Will point to SellerHub
+            BottomNavItem.Profile
+        )
+        "COURIER" -> listOf(
+            BottomNavItem.Home, // Will point to CourierHub
+            BottomNavItem.Profile
+        )
+        else -> emptyList() // Default case
+    }
+    // --- END OF FIX ---
 
     Scaffold(
         bottomBar = {
-            NavigationBar {
-                bottomNavItems.forEach { screen ->
-                    NavigationBarItem(
-                        icon = { Icon(screen.icon, contentDescription = screen.label) },
-                        label = { Text(screen.label) },
-                        selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
-                        onClick = {
-                            navController.navigate(screen.route) {
-                                popUpTo(navController.graph.findStartDestination().id) { saveState = true }
-                                launchSingleTop = true
-                                restoreState = true
+            // Only show the bottom bar if there are items to display for the role
+            if (bottomNavItems.isNotEmpty()) {
+                NavigationBar {
+                    bottomNavItems.forEach { screen ->
+                        NavigationBarItem(
+                            icon = { Icon(screen.icon, contentDescription = screen.label) },
+                            label = { Text(screen.label) },
+                            selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
+                            onClick = {
+                                navController.navigate(screen.route) {
+                                    popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                                    launchSingleTop = true
+                                    restoreState = true
+                                }
                             }
-                        }
-                    )
+                        )
+                    }
                 }
             }
         }
@@ -69,21 +84,21 @@ fun MainScreen(
             Modifier.padding(innerPadding)
         ) {
             composable(BottomNavItem.Home.route) {
+                // --- THIS IS THE FIX ---
+                // The "Home" route now correctly shows the right screen for each role.
                 when (userRole.uppercase()) {
                     "SELLER" -> SellerHubScreen(navController = navController)
                     "BUYER" -> VendorListScreen(navController = navController)
                     "COURIER" -> CourierHubScreen(navController = navController)
                 }
+                // --- END OF FIX ---
             }
             composable(BottomNavItem.Profile.route) {
-                ProfileScreen(
-                    navController = navController,
-                    onLogout = {
-                        rootNavController.navigate("auth_flow") {
-                            popUpTo("main_flow/{userRole}") { inclusive = true }
-                        }
+                ProfileScreen(navController = navController, onLogout = {
+                    rootNavController.navigate("auth_flow") {
+                        popUpTo("main_flow/{userRole}") { inclusive = true }
                     }
-                )
+                })
             }
             composable(BottomNavItem.Search.route) {
                 ItemListScreen(navController = navController)
@@ -97,10 +112,8 @@ fun MainScreen(
             composable(
                 route = "restaurant_detail/{restaurantId}",
                 arguments = listOf(navArgument("restaurantId") { type = NavType.IntType })
-            ) {
-                // --- THIS IS THE FIX ---
-                // The RestaurantDetailScreen does not need the ID passed to it directly.
-                // Hilt and its ViewModel will get it from the backStackEntry automatically.
+            ) { backStackEntry ->
+                val id = backStackEntry.arguments?.getInt("restaurantId") ?: -1
                 RestaurantDetailScreen(navController = navController)
             }
             composable(
@@ -118,20 +131,11 @@ fun MainScreen(
             ) {
                 OrderSuccessScreen(navController = navController)
             }
-            composable("favorites") {
-                FavoritesScreen(navController = navController)
-            }
             composable(
-                route = "submit_rating/{orderId}",
-                arguments = listOf(navArgument("orderId") { type = NavType.LongType })
+                route = "item_detail/{itemId}",
+                arguments = listOf(navArgument("itemId") { type = NavType.IntType })
             ) {
-                SubmitRatingScreen(navController = navController)
-            }
-            composable(
-                route = "edit_rating/{ratingId}",
-                arguments = listOf(navArgument("ratingId") { type = NavType.LongType })
-            ) {
-                EditRatingScreen(navController = navController)
+                ItemDetailScreen(navController = navController)
             }
         }
     }
