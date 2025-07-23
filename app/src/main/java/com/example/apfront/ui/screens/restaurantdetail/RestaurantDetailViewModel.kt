@@ -17,7 +17,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 data class RestaurantDetailUiState(
-    val isLoading: Boolean = false,
+    val isLoading: Boolean = true,
     val restaurantDetails: VendorDetailResponse? = null,
     val error: String? = null,
     val cart: List<CartItem> = emptyList(),
@@ -30,10 +30,9 @@ class RestaurantDetailViewModel @Inject constructor(
     private val sessionManager: SessionManager,
     private val favoriteRepository: FavoriteRepository,
     val cartManager: CartManager,
-    savedStateHandle: SavedStateHandle
+    savedStateHandle: SavedStateHandle // Hilt provides this to get navigation arguments
 ) : ViewModel() {
 
-    // This private state holds the data fetched from the API, including the favorite status
     private val _apiState = MutableStateFlow(RestaurantDetailUiState())
 
     // The final UI state is a combination of the API data and the shared cart data
@@ -64,7 +63,6 @@ class RestaurantDetailViewModel @Inject constructor(
         viewModelScope.launch {
             _apiState.update { it.copy(isLoading = true) }
             val token = sessionManager.getAuthToken() ?: return@launch
-
             when (val result = vendorRepository.getVendorDetails(token, restaurantId)) {
                 is Resource.Success -> _apiState.update { it.copy(isLoading = false, restaurantDetails = result.data) }
                 is Resource.Error -> _apiState.update { it.copy(isLoading = false, error = result.message) }
@@ -76,7 +74,7 @@ class RestaurantDetailViewModel @Inject constructor(
     private fun checkIfFavorite() {
         viewModelScope.launch {
             val token = sessionManager.getAuthToken() ?: return@launch
-            val result = favoriteRepository.getFavorites(token) // Get the result first
+            val result = favoriteRepository.getFavorites(token)
             if (result is Resource.Success) {
                 val isFav = result.data?.any { it.id == restaurantId } == true
                 _apiState.update { it.copy(isFavorite = isFav) }
@@ -88,13 +86,11 @@ class RestaurantDetailViewModel @Inject constructor(
         viewModelScope.launch {
             val token = sessionManager.getAuthToken() ?: return@launch
             val isCurrentlyFavorite = _apiState.value.isFavorite
-
             val result = if (isCurrentlyFavorite) {
                 favoriteRepository.removeFavorite(token, restaurantId)
             } else {
                 favoriteRepository.addFavorite(token, restaurantId)
             }
-
             if (result is Resource.Success) {
                 _apiState.update { it.copy(isFavorite = !isCurrentlyFavorite) }
             }

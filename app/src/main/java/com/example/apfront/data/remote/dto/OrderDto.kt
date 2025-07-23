@@ -31,5 +31,6 @@ data class OrderResponse(
     @SerializedName("courier_id") val courierId: Long?,
     val status: String,
     @SerializedName("created_at") val createdAt: LocalDateTime,
-    @SerializedName("updated_at") val updatedAt: LocalDateTime
+    @SerializedName("updated_at") val updatedAt: LocalDateTime,
+    @SerializedName("review_id") val reviewId: Long?
 )

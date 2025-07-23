@@ -1,4 +1,3 @@
-
 package com.example.apfront.ui.screens
 
 import androidx.compose.foundation.layout.padding
@@ -13,6 +12,8 @@ import androidx.navigation.compose.*
 import androidx.navigation.navArgument
 import com.example.apfront.ui.navigation.BottomNavItem
 import com.example.apfront.ui.screens.checkout.CheckoutScreen
+import com.example.apfront.ui.screens.courier_hub.CourierHubScreen
+import com.example.apfront.ui.screens.editrating.EditRatingScreen
 import com.example.apfront.ui.screens.favorites.FavoritesScreen
 import com.example.apfront.ui.screens.itemlist.ItemListScreen
 import com.example.apfront.ui.screens.orderdetail.OrderDetailScreen
@@ -21,6 +22,7 @@ import com.example.apfront.ui.screens.orderhistory.OrderHistoryScreen
 import com.example.apfront.ui.screens.profile.ProfileScreen
 import com.example.apfront.ui.screens.restaurantdetail.RestaurantDetailScreen
 import com.example.apfront.ui.screens.seller_hub.SellerHubScreen
+import com.example.apfront.ui.screens.submitrating.SubmitRatingScreen
 import com.example.apfront.ui.screens.vendorlist.VendorListScreen
 import com.example.apfront.ui.screens.wallet.WalletScreen
 
@@ -33,7 +35,7 @@ fun MainScreen(
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
-    val items = listOf(
+    val bottomNavItems = listOf(
         BottomNavItem.Home,
         BottomNavItem.Search,
         BottomNavItem.Orders,
@@ -44,7 +46,7 @@ fun MainScreen(
     Scaffold(
         bottomBar = {
             NavigationBar {
-                items.forEach { screen ->
+                bottomNavItems.forEach { screen ->
                     NavigationBarItem(
                         icon = { Icon(screen.icon, contentDescription = screen.label) },
                         label = { Text(screen.label) },
@@ -70,6 +72,7 @@ fun MainScreen(
                 when (userRole.uppercase()) {
                     "SELLER" -> SellerHubScreen(navController = navController)
                     "BUYER" -> VendorListScreen(navController = navController)
+                    "COURIER" -> CourierHubScreen(navController = navController)
                 }
             }
             composable(BottomNavItem.Profile.route) {
@@ -95,6 +98,9 @@ fun MainScreen(
                 route = "restaurant_detail/{restaurantId}",
                 arguments = listOf(navArgument("restaurantId") { type = NavType.IntType })
             ) {
+                // --- THIS IS THE FIX ---
+                // The RestaurantDetailScreen does not need the ID passed to it directly.
+                // Hilt and its ViewModel will get it from the backStackEntry automatically.
                 RestaurantDetailScreen(navController = navController)
             }
             composable(
@@ -110,11 +116,22 @@ fun MainScreen(
                 route = "order_success/{orderId}",
                 arguments = listOf(navArgument("orderId") { type = NavType.LongType })
             ) {
-
                 OrderSuccessScreen(navController = navController)
             }
             composable("favorites") {
                 FavoritesScreen(navController = navController)
+            }
+            composable(
+                route = "submit_rating/{orderId}",
+                arguments = listOf(navArgument("orderId") { type = NavType.LongType })
+            ) {
+                SubmitRatingScreen(navController = navController)
+            }
+            composable(
+                route = "edit_rating/{ratingId}",
+                arguments = listOf(navArgument("ratingId") { type = NavType.LongType })
+            ) {
+                EditRatingScreen(navController = navController)
             }
         }
     }
