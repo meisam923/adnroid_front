@@ -1,5 +1,7 @@
 package com.example.apfront.di
 
+import com.example.apfront.data.repository.AdminRepository
+import com.example.apfront.data.repository.AdminRepositoryImpl
 import com.example.apfront.data.repository.AuthRepository
 import com.example.apfront.data.repository.AuthRepositoryImpl // FIX: Changed to 'Impl'
 import com.example.apfront.data.repository.CouponRepository
@@ -63,4 +65,6 @@ abstract class RepositoryModule {
 
     @Binds @Singleton
     abstract fun bindFavoriteRepository(imp: FavoriteRepositoryImp): FavoriteRepository
+    @Binds @Singleton
+    abstract fun bindAdminRepository(imp: AdminRepositoryImpl): AdminRepository
 }
