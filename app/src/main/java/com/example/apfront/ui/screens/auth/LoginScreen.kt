@@ -1,93 +1,146 @@
 package com.example.apfront.ui.screens.auth
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AdminPanelSettings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.apfront.R
 import com.example.apfront.util.Resource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(
-    // --- FIX: Add the onNavigateToRegister parameter here ---
     onLoginSuccess: (role: String) -> Unit,
     onNavigateToRegister: () -> Unit,
-    // --- END OF FIX ---
     viewModel: LoginViewModel = hiltViewModel()
 ) {
-    var phone by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
     val loginState by viewModel.loginState.collectAsState()
 
-    // This LaunchedEffect block handles navigation after a successful login
+    var phone by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    var adminPhone by remember { mutableStateOf("admin") }
+    var adminPassword by remember { mutableStateOf("") }
+
+    var logoTaps by remember { mutableStateOf(0) }
+    var adminLoginVisible by remember { mutableStateOf(false) }
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    val scale by animateFloatAsState(if (isPressed) 0.95f else 1f, label = "scale")
+
     LaunchedEffect(loginState) {
         if (loginState is Resource.Success) {
-            val role = loginState.data?.user?.role ?: "BUYER" // Default to BUYER if role is missing
+            val role = loginState.data?.user?.role ?: "BUYER"
             onLoginSuccess(role)
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(stringResource(R.string.login), style = MaterialTheme.typography.headlineLarge)
-        Spacer(modifier = Modifier.height(32.dp))
-
-        OutlinedTextField(
-            value = phone,
-            onValueChange = { phone = it },
-            label = { Text(stringResource(R.string.phone_label)) },
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(16.dp)
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-
-        OutlinedTextField(
-            value = password,
-            onValueChange = { password = it },
-            label = { Text(stringResource(R.string.password)) },
-            modifier = Modifier.fillMaxWidth(),
-            visualTransformation = PasswordVisualTransformation(),
-            shape = RoundedCornerShape(16.dp)
-        )
-        Spacer(modifier = Modifier.height(32.dp))
-
-        when (val state = loginState) {
-            is Resource.Loading -> {
-                CircularProgressIndicator()
-            }
-            is Resource.Error -> {
-                Text(state.message ?: "An error occurred", color = MaterialTheme.colorScheme.error)
-            }
-            else -> {
-                // No need to show anything for Success or Idle here
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Button(
-            onClick = { viewModel.login(phone, password) },
-            modifier = Modifier.fillMaxWidth(),
-            enabled = loginState !is Resource.Loading
+    Scaffold { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(32.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(stringResource(R.string.login_button))
-        }
+            Text(
+                text = "Poly Eats",
+                style = MaterialTheme.typography.displayMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier
+                    .scale(scale)
+                    .clickable(
+                        interactionSource = interactionSource,
+                        indication = null
+                    ) {
+                        logoTaps++
+                        if (logoTaps >= 7) {
+                            adminLoginVisible = !adminLoginVisible
+                        }
+                    }
+            )
+            Text(
+                text = "Taste the convenience.",
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
 
-        // This button will now work correctly
-        TextButton(onClick = onNavigateToRegister) {
-            Text(stringResource(R.string.sign_up_button))
+            Spacer(modifier = Modifier.height(48.dp))
+
+            AnimatedVisibility(visible = !adminLoginVisible, enter = fadeIn(), exit = fadeOut()) {
+                Column {
+                    OutlinedTextField(value = phone, onValueChange = { phone = it }, label = { Text("Phone Number") }, modifier = Modifier.fillMaxWidth())
+                    Spacer(modifier = Modifier.height(16.dp))
+                    OutlinedTextField(value = password, onValueChange = { password = it }, label = { Text("Password") }, visualTransformation = PasswordVisualTransformation(), modifier = Modifier.fillMaxWidth())
+                }
+            }
+
+            AnimatedVisibility(visible = adminLoginVisible, enter = fadeIn(), exit = fadeOut()) {
+                Column {
+                    OutlinedTextField(
+                        value = adminPhone,
+                        onValueChange = { adminPhone = it },
+                        label = { Text("Admin Username") },
+                        modifier = Modifier.fillMaxWidth(),
+                        leadingIcon = { Icon(Icons.Default.AdminPanelSettings, contentDescription = null) }
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    OutlinedTextField(
+                        value = adminPassword,
+                        onValueChange = { adminPassword = it },
+                        label = { Text("Admin Password") },
+                        visualTransformation = PasswordVisualTransformation(),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            if (loginState is Resource.Error) {
+                Text(
+                    text = loginState.message ?: "An error occurred",
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+            }
+
+            Button(
+                onClick = {
+                    if (adminLoginVisible) {
+                        viewModel.login(adminPhone, adminPassword)
+                    } else {
+                        viewModel.login(phone, password)
+                    }
+                },
+                modifier = Modifier.fillMaxWidth().height(50.dp),
+                enabled = loginState !is Resource.Loading
+            ) {
+                if (loginState is Resource.Loading) {
+                    CircularProgressIndicator(modifier = Modifier.size(24.dp), color = MaterialTheme.colorScheme.onPrimary)
+                } else {
+                    Text("Login", style = MaterialTheme.typography.titleMedium)
+                }
+            }
+
+            TextButton(onClick = onNavigateToRegister) {
+                Text("Don't have an account? Register")
+            }
         }
     }
 }
