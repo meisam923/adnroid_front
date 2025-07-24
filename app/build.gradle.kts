@@ -1,26 +1,31 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    // REMOVE the kotlin.compose plugin from here
-
-    // ADD Hilt and Kapt plugins
     alias(libs.plugins.hilt)
     kotlin("kapt")
 }
 
 android {
     namespace = "com.example.apfront"
-    compileSdk = 36 // Make sure this is 34 as of the latest stable libraries
+    compileSdk = 34 // Using the latest stable SDK
 
     defaultConfig {
-        minSdk=26
+        applicationId = "com.example.apfront"
+        minSdk = 26
+        targetSdk = 34
+        versionCode = 1
+        versionName = "1.0"
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
-        // ... your existing config
+        release {
+            isMinifyEnabled = false
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+        }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8 // It's safer to use 1.8 for wider compatibility
+        sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
     kotlinOptions {
@@ -29,35 +34,51 @@ android {
     buildFeatures {
         compose = true
     }
-
-    // ADD this block to specify the Compose Compiler version
     composeOptions {
         kotlinCompilerExtensionVersion = libs.versions.composeCompiler.get()
     }
 }
 
 dependencies {
-    // ... your dependencies remain the same
-    implementation("io.coil-kt:coil-compose:2.6.0")
+    // Core & Lifecycle
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.activity.compose)
 
-    // Make sure to add Hilt dependencies here as well
-    implementation(platform(libs.androidx.compose.bom))
+    // Compose
+    implementation(platform(libs.androidx.compose.bom)) // BOM is declared once, first
+    implementation(libs.androidx.ui)
+    implementation(libs.androidx.ui.graphics)
+    implementation(libs.androidx.ui.tooling.preview)
+    implementation(libs.androidx.material3)
+    implementation(libs.androidx.material.icons.extended)
+
+    // Navigation
+    implementation(libs.androidx.navigation.compose)
+
+    // Hilt
     implementation(libs.hilt.android)
-    implementation(libs.androidx.ui.tooling.preview.android)
     kapt(libs.hilt.compiler)
     implementation(libs.hilt.navigation.compose)
 
-    // And Retrofit, etc.
+    // Networking
     implementation(libs.retrofit.core)
     implementation(libs.retrofit.converter.gson)
-    implementation(libs.androidx.material3)
-    implementation(libs.androidx.material.icons.extended)
-    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
-    implementation("androidx.compose.material:material-icons-extended-android:1.6.8")
-    implementation("io.coil-kt:coil-compose:2.6.0")
+    implementation(libs.okhttp.logging)
+
+    // Image Loading
+    implementation(libs.coil.compose)
+
+    // Testing
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(libs.androidx.ui.test.junit4)
+    debugImplementation(libs.androidx.ui.tooling)
+    debugImplementation(libs.androidx.ui.test.manifest)
 }
 
-// Add this block at the end of the file for Hilt
 kapt {
     correctErrorTypes = true
 }

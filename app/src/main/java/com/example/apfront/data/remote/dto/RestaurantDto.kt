@@ -79,7 +79,6 @@ data class OrderDto(
     @SerializedName("customer_id") val customerId: Int,
     @SerializedName("vendor_id") val vendorId: Int,
     @SerializedName("coupon_id") val couponId: Int?,
-    // This now uses the new OrderItemDto and matches the "order_items" key
     @SerializedName("items") val items: List<OrderItemDto>,
     @SerializedName("raw_price") val rawPrice: Double,
     @SerializedName("tax_fee") val taxFee: Double,

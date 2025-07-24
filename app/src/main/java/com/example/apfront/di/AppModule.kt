@@ -110,10 +110,6 @@ object AppModule {
     fun providePaymentApiService(retrofit: Retrofit): PaymentApiService = retrofit.create(PaymentApiService::class.java)
     @Provides @Singleton
     fun provideFavoriteApiService(retrofit: Retrofit): FavoriteApiService = retrofit.create(FavoriteApiService::class.java)
-
     @Provides @Singleton
-    fun provideRatingApiService(retrofit: Retrofit): RatingApiService = retrofit.create(RatingApiService::class.java)
-
-    @Provides @Singleton
-    fun provideCourierApiService(retrofit: Retrofit): CourierApiService = retrofit.create(CourierApiService::class.java)
+    fun provideAdminApiService(retrofit: Retrofit): AdminApiService = retrofit.create(AdminApiService::class.java)
 }
