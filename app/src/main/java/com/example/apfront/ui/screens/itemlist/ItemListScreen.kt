@@ -1,4 +1,3 @@
-
 package com.example.apfront.ui.screens.itemlist
 
 import androidx.compose.foundation.clickable
@@ -72,10 +71,13 @@ fun ItemListScreen(
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         items(uiState.items) { item ->
-                            FoodItemCard(item = item, onClick = {
-                                // This call to item.vendorId should now work correctly.
-                                navController.navigate("restaurant_detail/${item.vendorId}")
-                            })
+                            FoodItemCard(
+                                item = item,
+                                onClick = {
+                                    // Navigate to the item detail screen, passing the item's ID
+                                    navController.navigate("item_detail/${item.id}")
+                                }
+                            )
                         }
                     }
                 }
@@ -87,7 +89,9 @@ fun ItemListScreen(
 @Composable
 fun FoodItemCard(item: FoodItemDto, onClick: () -> Unit) {
     Card(
-        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick), // Apply the clickable modifier here
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
@@ -96,7 +100,7 @@ fun FoodItemCard(item: FoodItemDto, onClick: () -> Unit) {
         ) {
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
-                    .data(item.imageUrl) // This now correctly points to the 'imageBase64' field
+                    .data(item.imageUrl)
                     .crossfade(true)
                     .build(),
                 placeholder = painterResource(R.drawable.ic_placeholder_food),

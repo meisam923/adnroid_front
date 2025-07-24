@@ -1,5 +1,6 @@
 package com.example.apfront.ui.screens.restaurantdetail
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -9,9 +10,7 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -47,9 +46,7 @@ fun RestaurantDetailScreen(
             if (uiState.cart.isNotEmpty()) {
                 BottomAppBar {
                     Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp),
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -57,9 +54,8 @@ fun RestaurantDetailScreen(
                             text = "${uiState.cart.sumOf { it.quantity }} items",
                             style = MaterialTheme.typography.titleMedium
                         )
-                        // FIX: The button now navigates to the checkout screen
                         Button(onClick = { navController.navigate("checkout") }) {
-                            Text(text = "Order Now - $${"%.2f".format(cartTotal)}")
+                            Text(text = "View Order - $${"%.2f".format(cartTotal)}")
                         }
                     }
                 }
@@ -67,9 +63,7 @@ fun RestaurantDetailScreen(
         }
     ) { paddingValues ->
         Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues),
+            modifier = Modifier.fillMaxSize().padding(paddingValues),
             contentAlignment = Alignment.Center
         ) {
             if (uiState.isLoading) {
@@ -96,10 +90,12 @@ fun RestaurantDetailScreen(
                                 item = foodItem,
                                 quantityInCart = uiState.cart.find { it.item.id == foodItem.id }?.quantity ?: 0,
                                 onAddItem = { viewModel.onAddItem(foodItem) },
-                                onRemoveItem = { viewModel.onRemoveItem(foodItem) }
+                                onRemoveItem = { viewModel.onRemoveItem(foodItem) },
+                                // --- THIS IS THE FIX ---
+                                // Pass the navigation logic to the onClick parameter
+                                onClick = { navController.navigate("item_detail/${foodItem.id}") }
                             )
-                            // FIX: Changed HorizontalDivider to Divider
-                            Divider()
+                            HorizontalDivider()
                         }
                     }
                 }
@@ -113,11 +109,13 @@ fun FoodItemRow(
     item: FoodItemDto,
     quantityInCart: Int,
     onAddItem: () -> Unit,
-    onRemoveItem: () -> Unit
+    onRemoveItem: () -> Unit,
+    onClick: () -> Unit // Add the onClick parameter
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .clickable(onClick = onClick) // Apply the clickable modifier to the whole row
             .padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {

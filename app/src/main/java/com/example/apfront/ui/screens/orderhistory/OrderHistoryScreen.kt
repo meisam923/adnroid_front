@@ -32,9 +32,11 @@ fun OrderHistoryScreen(
             } else {
                 LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
                     items(uiState.orders) { order ->
-                        OrderHistoryCard(order = order, onClick = {
-                            navController.navigate("order_detail/${order.id}")
-                        })
+                        OrderHistoryCard(
+                            order = order,
+                            onClick = { navController.navigate("order_detail/${order.id}") },
+                            onRateClick = { navController.navigate("submit_rating/${order.id}") }
+                        )
                     }
                 }
             }
@@ -43,14 +45,20 @@ fun OrderHistoryScreen(
 }
 
 @Composable
-fun OrderHistoryCard(order: OrderResponse, onClick: () -> Unit) {
-    Card(modifier = Modifier.fillMaxWidth().clickable(onClick = onClick), elevation = CardDefaults.cardElevation(2.dp)) {
+fun OrderHistoryCard(order: OrderResponse, onClick: () -> Unit, onRateClick: () -> Unit) {
+    Card(modifier = Modifier.fillMaxWidth().clickable(onClick = onClick)) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text("Order #${order.id}", style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(8.dp))
             Text("Status: ${order.status}", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
             Text("Total: $${"%.2f".format(order.payPrice)}", style = MaterialTheme.typography.bodyMedium)
             Text("Placed on: ${order.createdAt}", style = MaterialTheme.typography.bodySmall)
+            if (order.status.equals("COMPLETED", ignoreCase = true)) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Button(onClick = onRateClick, modifier = Modifier.fillMaxWidth()) {
+                    Text("Rate This Order")
+                }
+            }
         }
     }
 }
