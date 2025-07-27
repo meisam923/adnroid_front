@@ -58,6 +58,7 @@ dependencies {
 
     // Hilt
     implementation(libs.hilt.android)
+    implementation(libs.androidx.appcompat)
     kapt(libs.hilt.compiler)
     implementation(libs.hilt.navigation.compose)
 
@@ -82,3 +83,4 @@ dependencies {
 kapt {
     correctErrorTypes = true
 }
+

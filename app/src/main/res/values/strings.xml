@@ -42,4 +42,6 @@
     <string name="order_status_served">Served</string>
     <string name="accept_button">Accept</string>
     <string name="reject_button">Reject</string>
+    <string name="profile_title">My Profile</string>
+    <string name="change_picture_button">Change Picture</string>
 </resources>

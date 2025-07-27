@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
+import androidx.core.content.edit
 
 @Singleton
 class SessionManager @Inject constructor(@ApplicationContext context: Context) {
@@ -13,16 +14,21 @@ class SessionManager @Inject constructor(@ApplicationContext context: Context) {
     companion object {
         const val AUTH_TOKEN = "auth_token"
         const val REFRESH_TOKEN = "refresh_token"
-        const val USER_ROLE = "user_role" // Key for storing the user's role
+        const val USER_ROLE = "user_role"
     }
 
-    // This method should be called after a successful login
-    fun saveSession(token: String, refreshToken: String, role: String) {
-        val editor = prefs.edit()
-        editor.putString(AUTH_TOKEN, token)
-        editor.putString(REFRESH_TOKEN, refreshToken)
-        editor.putString(USER_ROLE, role) // Save the role
-        editor.apply()
+    fun saveSession(token: String?, refreshToken: String?, role: String?) {
+        prefs.edit {
+            if (token != null) {
+                putString(AUTH_TOKEN, token)
+            }
+            if (refreshToken != null) {
+                putString(REFRESH_TOKEN, refreshToken)
+            }
+            if (role != null) {
+                putString(USER_ROLE, role)
+            }
+        }
     }
 
     fun getAuthToken(): String? {

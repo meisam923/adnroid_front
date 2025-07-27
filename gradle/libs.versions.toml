@@ -15,6 +15,7 @@ retrofit = "2.9.0"
 okhttp = "4.12.0"
 navigationCompose = "2.7.7"
 coilCompose = "2.6.0"
+appcompat = "1.7.1"
 
 [libraries]
 # Core & Lifecycle
@@ -53,6 +54,7 @@ androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "j
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

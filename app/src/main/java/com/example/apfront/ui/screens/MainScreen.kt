@@ -13,8 +13,10 @@ import androidx.navigation.navArgument
 import com.example.apfront.ui.navigation.BottomNavItem
 import com.example.apfront.ui.screens.checkout.CheckoutScreen
 import com.example.apfront.ui.screens.courier_hub.CourierHubScreen
+import com.example.apfront.ui.screens.favorites.FavoritesScreen
 import com.example.apfront.ui.screens.itemdetail.ItemDetailScreen
 import com.example.apfront.ui.screens.itemlist.ItemListScreen
+import com.example.apfront.ui.screens.onlinepayment.OnlinePaymentScreen
 import com.example.apfront.ui.screens.orderdetail.OrderDetailScreen
 import com.example.apfront.ui.screens.orderdetail.OrderSuccessScreen
 import com.example.apfront.ui.screens.orderhistory.OrderHistoryScreen
@@ -136,6 +138,18 @@ fun MainScreen(
                 arguments = listOf(navArgument("itemId") { type = NavType.IntType })
             ) {
                 ItemDetailScreen(navController = navController)
+            }
+            composable(
+                route = "online_payment/{orderId}",
+                arguments = listOf(navArgument("orderId") { type = NavType.LongType })
+            ) {
+                OnlinePaymentScreen(
+                    navController = navController,
+                    orderId = it.arguments?.getLong("orderId") ?: -1
+                )
+            }
+            composable("favorites") {
+                FavoritesScreen(navController = navController)
             }
         }
     }

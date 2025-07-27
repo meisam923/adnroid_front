@@ -1,16 +1,21 @@
+
 package com.example.apfront.ui.screens.profile
 
+import android.content.Context
+import android.net.Uri
+import android.util.Base64
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.apfront.data.remote.dto.BankInfoDto
 import com.example.apfront.data.remote.dto.UpdateProfileRequest
 import com.example.apfront.data.remote.dto.UserDto
 import com.example.apfront.data.repository.AuthRepository
+import com.example.apfront.util.LocaleManager
 import com.example.apfront.util.Resource
 import com.example.apfront.util.SessionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -18,13 +23,17 @@ data class ProfileUiState(
     val isLoading: Boolean = false,
     val user: UserDto? = null,
     val error: String? = null,
-    val updateSuccess: Boolean = false
+    val updateSuccess: Boolean = false,
+    // This will hold the URI of the selected image for preview
+    val selectedImageUri: Uri? = null
 )
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
     private val repository: AuthRepository,
-    private val sessionManager: SessionManager
+    private val sessionManager: SessionManager,
+    private val localeManager: LocaleManager,
+    @ApplicationContext private val context: Context
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ProfileUiState())
@@ -34,61 +43,70 @@ class ProfileViewModel @Inject constructor(
         loadProfile()
     }
 
-    fun loadProfile() {
-        viewModelScope.launch {
-            _uiState.value = ProfileUiState(isLoading = true)
-            val token = sessionManager.getAuthToken()
-            if (token == null) {
-                _uiState.value = ProfileUiState(error = "Not authenticated.")
-                return@launch
-            }
+    fun onImageSelected(uri: Uri?) {
+        _uiState.update { it.copy(selectedImageUri = uri) }
+    }
 
-            when (val result = repository.getProfile(token)) {
-                is Resource.Success -> _uiState.value = ProfileUiState(user = result.data)
-                is Resource.Error -> _uiState.value = ProfileUiState(error = result.message)
+    fun onLanguageSelected(languageCode: String) {
+        localeManager.setLocale(languageCode)
+    }
+
+    fun updateProfile(fullName: String, phone: String, email: String, address: String, bankName: String, accountNumber: String) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true, updateSuccess = false, error = null) }
+            val token = sessionManager.getAuthToken() ?: return@launch
+
+            // Convert the selected image URI to a Base64 string for the API
+            val imageBase64 = _uiState.value.selectedImageUri?.let { uri ->
+                context.contentResolver.openInputStream(uri)?.use {
+                    Base64.encodeToString(it.readBytes(), Base64.NO_WRAP)
+                }
+            } ?: _uiState.value.user?.profileImageBase64 // Keep the old image if a new one isn't selected
+
+            val bankInfo = if (bankName.isNotBlank() || accountNumber.isNotBlank()) {
+                BankInfoDto(bankName, accountNumber)
+            } else { null }
+
+            val request = UpdateProfileRequest(
+                fullName = fullName, phone = phone, email = email, address = address,
+                profileImageBase64 = imageBase64, bankInfo = bankInfo
+            )
+
+            when (val result = repository.updateProfile(token, request)) {
+                is Resource.Success -> {
+                    _uiState.update { it.copy(updateSuccess = true) }
+                    loadProfile() // Refresh profile data after a successful update
+                }
+                is Resource.Error -> _uiState.update { it.copy(isLoading = false, error = result.message ?: "Update failed") }
                 else -> {}
             }
         }
     }
 
-    // FIX: The updateProfile function now accepts all the new fields
-    fun updateProfile(
-        fullName: String,
-        phone: String,
-        email: String,
-        address: String,
-        bankName: String,
-        accountNumber: String
-    ) {
+    fun loadProfile() {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true, updateSuccess = false, error = null)
-            val token = sessionManager.getAuthToken() ?: return@launch
+            _uiState.update { it.copy(isLoading = true, error = null) }
+            val token = sessionManager.getAuthToken()
+            val role = sessionManager.getUserRole()
 
-            // Create the bank info DTO if the fields are not blank
-            val bankInfo = if (bankName.isNotBlank() || accountNumber.isNotBlank()) {
-                BankInfoDto(bankName, accountNumber)
-            } else {
-                null
+            if (role?.equals("ADMIN", ignoreCase = true) == true) {
+                val adminUser = UserDto(
+                    id = "admin_id", fullName = "Admin", phone = "admin",
+                    email = "admin@app.com", role = "ADMIN", address = "Admin Address",
+                    profileImageBase64 = null, bankInfo = null
+                )
+                _uiState.update { it.copy(isLoading = false, user = adminUser) }
+                return@launch
             }
 
-            val request = UpdateProfileRequest(
-                fullName = fullName,
-                phone = phone,
-                email = email,
-                address = address,
-                profileImageBase64 = null, // Image upload not implemented yet
-                bankInfo = bankInfo
-            )
+            if (token == null) {
+                _uiState.update { it.copy(isLoading = false, error = "Not authenticated.") }
+                return@launch
+            }
 
-            when (repository.updateProfile(token, request)) {
-                is Resource.Success -> {
-                    // Refresh profile data from server after successful update
-                    loadProfile()
-                    _uiState.value = _uiState.value.copy(updateSuccess = true)
-                }
-                is Resource.Error -> {
-                    _uiState.value = _uiState.value.copy(isLoading = false, error = "Update failed")
-                }
+            when (val result = repository.getProfile(token)) {
+                is Resource.Success -> _uiState.update { it.copy(isLoading = false, user = result.data) }
+                is Resource.Error -> _uiState.update { it.copy(isLoading = false, error = result.message) }
                 else -> {}
             }
         }
