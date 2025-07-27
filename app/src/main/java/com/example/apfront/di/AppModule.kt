@@ -112,4 +112,9 @@ object AppModule {
     fun provideFavoriteApiService(retrofit: Retrofit): FavoriteApiService = retrofit.create(FavoriteApiService::class.java)
     @Provides @Singleton
     fun provideAdminApiService(retrofit: Retrofit): AdminApiService = retrofit.create(AdminApiService::class.java)
+    @Provides @Singleton
+    fun provideCourierApiService(retrofit: Retrofit): CourierApiService = retrofit.create(CourierApiService::class.java)
+    @Provides @Singleton
+    fun provideRatingApiService(retrofit: Retrofit): RatingApiService = retrofit.create(RatingApiService::class.java)
+
 }
