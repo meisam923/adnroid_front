@@ -11,6 +11,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.*
 import androidx.navigation.navArgument
 import com.example.apfront.ui.navigation.BottomNavItem
+import com.example.apfront.ui.screens.admin.AdminScreen
 import com.example.apfront.ui.screens.checkout.CheckoutScreen
 import com.example.apfront.ui.screens.courier_hub.CourierHubScreen
 import com.example.apfront.ui.screens.itemdetail.ItemDetailScreen
@@ -48,6 +49,10 @@ fun MainScreen(
             BottomNavItem.Profile
         )
         "COURIER" -> listOf(
+            BottomNavItem.Home, // Will point to CourierHub
+            BottomNavItem.Profile
+        )
+        "ADMIN" -> listOf(
             BottomNavItem.Home, // Will point to CourierHub
             BottomNavItem.Profile
         )
@@ -90,6 +95,7 @@ fun MainScreen(
                     "SELLER" -> SellerHubScreen(navController = navController)
                     "BUYER" -> VendorListScreen(navController = navController)
                     "COURIER" -> CourierHubScreen(navController = navController)
+                    "ADMIN" -> AdminScreen(navController = navController)
                 }
                 // --- END OF FIX ---
             }
