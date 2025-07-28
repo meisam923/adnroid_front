@@ -215,6 +215,7 @@ fun OrderCard(
                                 Text("⭐ Customer Review:", style = MaterialTheme.typography.titleSmall, color = textColor)
                                 review.rating?.let { Text("Rating: $it / 5", color = textColor) }
                                 review.comment?.let { Text("Comment: $it", color = textColor) }
+                                review.reply?.let { Text("your response: $it", color = textColor) }
 
                                 val imageList = review.base64Images ?: emptyList()
                                 if (imageList.isNotEmpty()) {

@@ -69,7 +69,7 @@ class AdminViewModel @Inject constructor(
         _users.value = adminRepository.getAllUsers(token)
     }
 
-    fun updateUserStatus(userId: Long, status: String) = viewModelScope.launch {
+    fun updateUserStatus(userId: String, status: String) = viewModelScope.launch {
         val token = sessionManager.getAuthToken() ?: return@launch
         adminRepository.updateUserStatus(token, userId, status)
         fetchUsers()

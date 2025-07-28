@@ -9,7 +9,7 @@ import com.example.apfront.util.Resource
 interface AdminRepository {
 
     suspend fun getAllUsers(token: String): Resource<List<AdminUserDto>>
-    suspend fun updateUserStatus(token: String, userId: Long, status: String): Resource<Unit>
+    suspend fun updateUserStatus(token: String, userId: String, status: String): Resource<Unit>
 
     suspend fun getAllOrders(token: String, search: String? = null): Resource<List<AdminOrderDto>>
     suspend fun getTransactions(token: String, search: String? = null): Resource<List<TransactionDto>>
