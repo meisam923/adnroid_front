@@ -166,33 +166,46 @@ fun RestaurantTab(restaurants: List<RestaurantDto>, onStatusChange: (Long, Strin
                             Row {
                                 when (status) {
                                     "WAITING", "SUSPENDED" -> {
-                                        Button(
-                                            onClick = { onStatusChange(restaurant.id.toLong(), "registered") },
-                                            modifier = Modifier.height(36.dp)
-                                        ) { Text("Approve") }
+                                        Column(verticalArrangement = Arrangement.spacedBy(4.dp),    modifier = Modifier.width(110.dp), // You can adjust this width
+                                        ) {
+                                            Button(
+                                                onClick = { onStatusChange(restaurant.id.toLong(), "registered") },
+                                                modifier = Modifier.height(36.dp)
+                                                    .fillMaxWidth()
+                                            ) {
+                                                Text("Approve")
+                                            }
 
-                                        Spacer(modifier = Modifier.width(4.dp))
-
-                                        Button(
-                                            onClick = { onStatusChange(restaurant.id.toLong(), "rejected") },
-                                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
-                                            modifier = Modifier.height(36.dp)
-                                        ) { Text("Reject") }
+                                            Button(
+                                                onClick = { onStatusChange(restaurant.id.toLong(), "rejected") },
+                                                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
+                                                modifier = Modifier.height(36.dp)
+                                                    .fillMaxWidth()                                            ) {
+                                                Text("Reject")
+                                            }
+                                        }
                                     }
 
                                     "REGISTERED" -> {
-                                        Button(
-                                            onClick = { onStatusChange(restaurant.id.toLong(), "suspended") },
-                                            modifier = Modifier.height(36.dp)
-                                        ) { Text("Suspend") }
+                                        Column(verticalArrangement = Arrangement.spacedBy(4.dp),    modifier = Modifier.width(110.dp), // You can adjust this width
+                                        ) {
+                                            Button(
+                                                onClick = { onStatusChange(restaurant.id.toLong(), "suspended") },
+                                                modifier = Modifier.height(36.dp)
+                                                    .fillMaxWidth()
+                                            ) {
+                                                Text("Suspend")
+                                            }
 
-                                        Spacer(modifier = Modifier.width(4.dp))
-
-                                        Button(
-                                            onClick = { onStatusChange(restaurant.id.toLong(), "rejected") },
-                                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
-                                            modifier = Modifier.height(36.dp)
-                                        ) { Text("Reject") }
+                                            Button(
+                                                onClick = { onStatusChange(restaurant.id.toLong(), "rejected") },
+                                                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
+                                                modifier = Modifier.height(36.dp)
+                                                    .fillMaxWidth()
+                                            ) {
+                                                Text("Reject")
+                                            }
+                                        }
                                     }
 
                                     "REJECTED" -> {

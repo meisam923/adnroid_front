@@ -71,6 +71,13 @@ abstract class RepositoryModule {
     abstract fun bindFavoriteRepository(imp: FavoriteRepositoryImp): FavoriteRepository
     @Binds @Singleton
     abstract fun bindAdminRepository(imp: AdminRepositoryImpl): AdminRepository
+    @Binds @Singleton
+    abstract fun bindCourierRepository(imp: CourierRepositoryImp): CourierRepository
+    @Binds @Singleton
+    abstract fun bindRatingRepository(imp: RatingRepositoryImp): RatingRepository
+
+
+
 
     @Binds
     @Singleton
