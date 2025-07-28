@@ -77,17 +77,4 @@ abstract class RepositoryModule {
     abstract fun bindRatingRepository(imp: RatingRepositoryImp): RatingRepository
 
 
-
-
-    @Binds
-    @Singleton
-    abstract fun bindCourierRepository(
-        courierRepositoryImp: CourierRepositoryImp
-    ): CourierRepository
-
-    @Binds
-    @Singleton
-    abstract fun bindRatingRepository(
-        ratingRepositoryImp: RatingRepositoryImp
-    ): RatingRepository
 }
