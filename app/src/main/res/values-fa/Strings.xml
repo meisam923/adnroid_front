@@ -42,4 +42,6 @@
     <string name="order_status_served">سرو شده</string>
     <string name="accept_button">قبول</string>
     <string name="reject_button">رد</string>
+    <string name="profile_title">پروفایل من</string>
+    <string name="change_picture_button">تغییر عکس</string>
 </resources>

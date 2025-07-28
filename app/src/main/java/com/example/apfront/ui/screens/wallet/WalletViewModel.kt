@@ -19,7 +19,7 @@ data class WalletUiState(
     val isLoading: Boolean = false,
     val profile: UserDto? = null,
     val transactions: List<TransactionDto> = emptyList(),
-    val calculatedBalance: BigDecimal = BigDecimal.ZERO, // The balance is now calculated
+    val calculatedBalance: BigDecimal = BigDecimal.ZERO,
     val error: String? = null,
     val topUpSuccess: Boolean = false
 )
@@ -42,15 +42,12 @@ class WalletViewModel @Inject constructor(
             _uiState.update { it.copy(isLoading = true, error = null, topUpSuccess = false) }
             val token = sessionManager.getAuthToken() ?: return@launch
 
-            // Fetch both profile and transactions in parallel
             val profileResult = authRepository.getProfile(token)
             val transactionsResult = paymentRepository.getTransactions(token)
 
             if (profileResult is Resource.Success && transactionsResult is Resource.Success) {
                 val transactions = transactionsResult.data ?: emptyList()
-                // Calculate the balance from the transaction list
                 val balance = calculateBalance(transactions)
-
                 _uiState.update {
                     it.copy(
                         isLoading = false,
@@ -65,19 +62,25 @@ class WalletViewModel @Inject constructor(
         }
     }
 
+    // --- THIS IS THE FIX ---
     private fun calculateBalance(transactions: List<TransactionDto>): BigDecimal {
         var balance = BigDecimal.ZERO
         for (tx in transactions) {
+            // Only include transactions that were successful in the calculation.
             if (tx.status.equals("SUCCESS", ignoreCase = true)) {
                 if (tx.type.equals("TOP_UP", ignoreCase = true)) {
                     balance += tx.amount
                 } else if (tx.type.equals("PAYMENT", ignoreCase = true)) {
-                    balance -= tx.amount
+                    // **Crucial Check:** Only subtract from the balance if the payment method was WALLET.
+                    if (tx.method.equals("WALLET", ignoreCase = true)) {
+                        balance -= tx.amount
+                    }
                 }
             }
         }
         return balance
     }
+    // --- END OF FIX ---
 
     fun topUp(amount: BigDecimal) {
         viewModelScope.launch {
@@ -85,11 +88,14 @@ class WalletViewModel @Inject constructor(
             val token = sessionManager.getAuthToken() ?: return@launch
             val result = paymentRepository.topUpWallet(token, TopUpRequest(amount))
             if (result is Resource.Success) {
-                // Refresh all data after a successful top-up
-                loadWalletData()
+                loadWalletData() // Refresh all data after successful top-up
             } else {
                 _uiState.update { it.copy(isLoading = false, error = result.message) }
             }
         }
+    }
+
+    fun refresh() {
+        loadWalletData()
     }
 }

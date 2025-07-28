@@ -28,28 +28,37 @@ fun CheckoutScreen(
     val cart by viewModel.cartManager.cart.collectAsState()
     val uiState by viewModel.uiState.collectAsState()
 
-    // Determine if the button should be enabled
-    val isButtonEnabled = uiState.deliveryAddress.isNotBlank() && !uiState.isSubmitting
+    val subtotal = cart.sumOf { it.item.price * it.quantity }.toBigDecimal()
+    val coupon = (uiState.couponState as? Resource.Success)?.data
+    val discount = coupon?.value ?: BigDecimal.ZERO
+    val total = (subtotal - discount).coerceAtLeast(BigDecimal.ZERO)
 
-    // Show an alert dialog for any error message
+    val hasSufficientBalance = uiState.calculatedBalance >= total
+    val isButtonEnabled = uiState.deliveryAddress.isNotBlank() && !uiState.isSubmitting &&
+            (uiState.selectedPaymentMethod == "online" || hasSufficientBalance)
+
     if (uiState.errorMessage != null) {
         AlertDialog(
             onDismissRequest = { viewModel.dismissError() },
             title = { Text("Error") },
             text = { Text(uiState.errorMessage!!) },
-            confirmButton = {
-                Button(onClick = { viewModel.dismissError() }) { Text("OK") }
-            }
+            confirmButton = { Button(onClick = { viewModel.dismissError() }) { Text("OK") } }
         )
     }
 
-    // Navigate to the success screen when the order is successfully submitted
     LaunchedEffect(uiState.orderSubmissionState) {
-        if (uiState.orderSubmissionState is Resource.Success) {
-            val orderId = (uiState.orderSubmissionState as Resource.Success<Long?>).data
-            navController.navigate("order_success/$orderId") {
-                // Clear the navigation stack so the user can't go back to the checkout
-                popUpTo("home") { inclusive = true }
+        val submissionState = uiState.orderSubmissionState
+        if (submissionState is Resource.Success) {
+            val orderId = submissionState.data
+            if (orderId != null) {
+                if (uiState.selectedPaymentMethod == "online") {
+                    navController.navigate("online_payment/$orderId")
+                } else { // Wallet payment was already successful
+                    navController.navigate("order_success/$orderId") {
+                        popUpTo("home") { inclusive = true }
+                    }
+                }
+                viewModel.onNavigationHandled()
             }
         }
     }
@@ -57,75 +66,82 @@ fun CheckoutScreen(
     Scaffold(
         topBar = { TopAppBar(title = { Text("Your Order") }) }
     ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(16.dp)
-        ) {
-            Text("Delivery Address", style = MaterialTheme.typography.titleLarge)
-            OutlinedTextField(
-                value = uiState.deliveryAddress,
-                onValueChange = { viewModel.onAddressChanged(it) },
-                label = { Text("Enter your address") },
-                modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
-                isError = uiState.errorMessage?.contains("address", ignoreCase = true) == true
-            )
+        Box(modifier = Modifier.fillMaxSize().padding(paddingValues), contentAlignment = Alignment.Center) {
+            if (uiState.isLoading) {
+                CircularProgressIndicator()
+            } else {
+                Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+                    Text("Delivery Address", style = MaterialTheme.typography.titleLarge)
+                    OutlinedTextField(
+                        value = uiState.deliveryAddress,
+                        onValueChange = { viewModel.onAddressChanged(it) },
+                        label = { Text("Enter your address") },
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                        isError = uiState.errorMessage?.contains("address", ignoreCase = true) == true
+                    )
 
-            Divider(modifier = Modifier.padding(vertical = 16.dp))
+                    Divider(modifier = Modifier.padding(vertical = 16.dp))
 
-            Text("Items in Cart", style = MaterialTheme.typography.titleLarge)
-            LazyColumn(modifier = Modifier.weight(1f)) {
-                items(cart) { cartItem ->
-                    CartItemRow(cartItem)
-                }
-            }
-            Divider(modifier = Modifier.padding(vertical = 16.dp))
-            Text("Payment Method", style = MaterialTheme.typography.titleLarge)
-            val paymentMethods = listOf("online", "wallet")
-            Column(Modifier.padding(top = 8.dp)) {
-                paymentMethods.forEach { method ->
-                    Row(
-                        Modifier
-                            .fillMaxWidth()
-                            .selectable(
-                                selected = (method == uiState.selectedPaymentMethod),
-                                onClick = { viewModel.onPaymentMethodSelected(method) },
-                                role = Role.RadioButton
-                            )
-                            .padding(vertical = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        RadioButton(
-                            selected = (method == uiState.selectedPaymentMethod),
-                            onClick = null
-                        )
-                        Text(
-                            text = method.replaceFirstChar { it.uppercase() },
-                            style = MaterialTheme.typography.bodyLarge,
-                            modifier = Modifier.padding(start = 16.dp)
-                        )
+                    Text("Items in Cart", style = MaterialTheme.typography.titleLarge)
+                    LazyColumn(modifier = Modifier.heightIn(max = 200.dp)) {
+                        items(cart) { cartItem ->
+                            CartItemRow(cartItem)
+                        }
                     }
-                }
-            }
 
-            CouponSection(viewModel = viewModel, couponState = uiState.couponState)
+                    Divider(modifier = Modifier.padding(vertical = 16.dp))
+                    Text("Payment Method", style = MaterialTheme.typography.titleLarge)
+                    val paymentMethods = listOf("online", "wallet")
+                    Column(Modifier.padding(top = 8.dp)) {
+                        paymentMethods.forEach { method ->
+                            Row(
+                                Modifier
+                                    .fillMaxWidth()
+                                    .selectable(
+                                        selected = (method == uiState.selectedPaymentMethod),
+                                        onClick = { viewModel.onPaymentMethodSelected(method) },
+                                        role = Role.RadioButton
+                                    )
+                                    .padding(vertical = 8.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                RadioButton(
+                                    selected = (method == uiState.selectedPaymentMethod),
+                                    onClick = null
+                                )
+                                Text(
+                                    text = method.replaceFirstChar { it.uppercase() },
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    modifier = Modifier.padding(start = 16.dp)
+                                )
+                                if (method == "wallet") {
+                                    Spacer(modifier = Modifier.weight(1f))
+                                    Text(
+                                        text = "(Balance: $${"%.2f".format(uiState.calculatedBalance)})",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = if (hasSufficientBalance) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.error
+                                    )
+                                }
+                            }
+                        }
+                    }
 
-            val subtotal = cart.sumOf { it.item.price * it.quantity }
-            val coupon = (uiState.couponState as? Resource.Success)?.data
-            val discount = coupon?.value ?: BigDecimal.ZERO
-            val total = (subtotal.toBigDecimal() - discount).coerceAtLeast(BigDecimal.ZERO)
-            PriceSummary(subtotal = subtotal, discount = discount, total = total)
+                    Spacer(modifier = Modifier.weight(1f))
 
-            Button(
-                onClick = { viewModel.submitAndPay() },
-                modifier = Modifier.fillMaxWidth().height(50.dp),
-                enabled = isButtonEnabled
-            ) {
-                if (uiState.isSubmitting) {
-                    CircularProgressIndicator(modifier = Modifier.size(24.dp), color = MaterialTheme.colorScheme.onPrimary)
-                } else {
-                    Text("Confirm and Pay")
+                    CouponSection(viewModel = viewModel, couponState = uiState.couponState)
+                    PriceSummary(subtotal = subtotal.toDouble(), discount = discount, total = total)
+
+                    Button(
+                        onClick = { viewModel.onProceedToPayment() },
+                        modifier = Modifier.fillMaxWidth().height(50.dp),
+                        enabled = isButtonEnabled
+                    ) {
+                        if (uiState.isSubmitting) {
+                            CircularProgressIndicator(modifier = Modifier.size(24.dp), color = MaterialTheme.colorScheme.onPrimary)
+                        } else {
+                            Text("Proceed to Payment")
+                        }
+                    }
                 }
             }
         }
@@ -192,7 +208,7 @@ fun PriceSummary(subtotal: Double, discount: BigDecimal, total: BigDecimal) {
                     Text("-$${"%.2f".format(discount)}", color = MaterialTheme.colorScheme.primary)
                 }
             }
-            Divider(modifier = Modifier.padding(vertical = 4.dp))
+            HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Text("Total", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
                 Text("$${"%.2f".format(total)}", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
