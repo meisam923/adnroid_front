@@ -24,7 +24,7 @@ class AdminRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun updateUserStatus(token: String, userId: Long, status: String): Resource<Unit> {
+    override suspend fun updateUserStatus(token: String, userId: String, status: String): Resource<Unit> {
         return try {
             val response = api.updateUserStatus("Bearer $token", userId, StatusUpdateRequest(status))
             if (response.isSuccessful) {
