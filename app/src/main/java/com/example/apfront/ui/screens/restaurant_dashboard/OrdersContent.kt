@@ -127,6 +127,10 @@ fun OrdersContent(
                                         orderStatuses[selectedTabIndex]
                                     )
                                 }
+                                ,
+                                reply = { reviewId, reply ->
+                                    viewModel.submitReplyReview(reviewId, reply)
+                                }
                             )
                         }
                     }
@@ -148,89 +152,137 @@ fun OrderCard(
     order: OrderDto,
     onAccept: () -> Unit,
     onReject: () -> Unit,
-    onServe: () -> Unit
+    onServe: () -> Unit,
+    reply: (Long, String) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
-    val isDark = isSystemInDarkTheme()
+    var replyText by remember { mutableStateOf("") }
 
+    val isDark = isSystemInDarkTheme()
     val cardColor = when (order.restaurantStatus.uppercase()) {
         "BASE" -> if (isDark) Color(0xFF2D2D2D) else Color(0xFFF5F5F5)
         "ACCEPTED" -> if (isDark) Color(0xFF1E3A5F) else Color(0xFFE3F2FD)
         "REJECTED" -> if (isDark) Color(0xFF4B1C1C) else Color(0xFFFFEBEE)
-        "SERVED" -> if (isDark) Color(0xFF1C3D2E) else Color(0xFFE8F5E9)
+        "SERVED" -> if (isDark) Color(0xFF618096) else Color(0xFFE8F5E9)
         else -> MaterialTheme.colorScheme.surfaceVariant
     }
-
     val textColor = if (isDark) Color.White else MaterialTheme.colorScheme.onSurface
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { expanded = !expanded },
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         colors = CardDefaults.cardColors(containerColor = cardColor)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text("Order #${order.id}", style = MaterialTheme.typography.titleMedium, color = textColor)
-            Text("Total Price: ${order.payPrice} $", style = MaterialTheme.typography.bodyMedium, color = textColor)
+
+            // Header
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column {
+                    Text("Order #${order.id}", style = MaterialTheme.typography.titleLarge, color = textColor)
+                    Text(
+                        "Status: ${order.restaurantStatus}",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+
+                Text(
+                    "${order.payPrice} $",
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
 
             AnimatedVisibility(visible = expanded) {
-                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Column(modifier = Modifier.padding(top = 12.dp)) {
 
                     // Items
-                    Column {
-                        Text("🧾 Items:", style = MaterialTheme.typography.titleSmall, color = textColor)
-                        Spacer(modifier = Modifier.height(4.dp))
-                        order.items.forEach { item ->
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-                                Text("${item.name} × ${item.quantity}", color = textColor)
-                                Text("${item.pricePerItem} $", color = textColor)
-                            }
+                    SectionHeader("Ordered Items")
+                    Spacer(modifier = Modifier.height(6.dp))
+                    order.items.forEach {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text("${it.name} × ${it.quantity}", color = textColor)
+                            Text("${it.pricePerItem} $", color = textColor)
                         }
                     }
 
                     // Price Breakdown
-                    Column {
-                        Text("💰 Price Details:", style = MaterialTheme.typography.titleSmall, color = textColor)
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text("Raw Price: ${order.rawPrice} $", color = textColor)
+                    Spacer(modifier = Modifier.height(12.dp))
+                    SectionHeader("Price Breakdown")
+                    Column(modifier = Modifier.padding(top = 6.dp)) {
+                        Text("Raw: ${order.rawPrice} $", color = textColor)
                         Text("Tax: ${order.taxFee} $", color = textColor)
-                        Text("Additional Fee: ${order.additionalFee} $", color = textColor)
-                        Text("Courier Fee: ${order.courierFee} $", color = textColor)
-                        Text("Total Pay: ${order.payPrice} $", style = MaterialTheme.typography.bodyMedium, color = textColor)
+                        Text("Additional: ${order.additionalFee} $", color = textColor)
+                        Text("Courier: ${order.courierFee} $", color = textColor)
                     }
 
                     // Address
-                    Column {
-                        Text("📍 Delivery Address:", style = MaterialTheme.typography.titleSmall, color = textColor)
-                        Text(order.deliveryAddress, color = textColor)
-                    }
+                    Spacer(modifier = Modifier.height(12.dp))
+                    SectionHeader("Delivery Address", icon = "📍")
+                    Text(order.deliveryAddress, color = textColor, modifier = Modifier.padding(top = 4.dp))
 
-                    // Review (only if SERVED)
+                    // Review
                     if (order.restaurantStatus.equals("SERVED", ignoreCase = true)) {
                         order.review?.let { review ->
-                            Column {
-                                Text("⭐ Customer Review:", style = MaterialTheme.typography.titleSmall, color = textColor)
-                                review.rating?.let { Text("Rating: $it / 5", color = textColor) }
-                                review.comment?.let { Text("Comment: $it", color = textColor) }
-                                review.reply?.let { Text("your response: $it", color = textColor) }
+                            Spacer(modifier = Modifier.height(12.dp))
+                            SectionHeader("Customer Review", icon = "⭐")
 
-                                val imageList = review.base64Images ?: emptyList()
-                                if (imageList.isNotEmpty()) {
-                                    val pagerState = rememberPagerState(pageCount = { imageList.size })
-                                    // HorizontalPager no longer needs pageCount directly if provided in state
-                                    HorizontalPager(state = pagerState) { page ->
-                                        Base64Image(
-                                            base64Data = imageList[page],
-                                            contentDescription = "Review image $page",
-                                            modifier = Modifier
-                                                .padding(vertical = 4.dp)
-                                                .height(200.dp)
-                                                .fillMaxWidth()
-                                        )
-                                    }
+                            review.rating?.let {
+                                Text("Rating: $it / 5", color = textColor)
+                            }
+                            review.comment?.let {
+                                Text("Comment: $it", color = textColor)
+                            }
+
+                            val imageList = review.base64Images ?: emptyList()
+                            if (imageList.isNotEmpty()) {
+                                val pagerState = rememberPagerState(pageCount = { imageList.size })
+                                HorizontalPager(state = pagerState) { page ->
+                                    Base64Image(
+                                        base64Data = imageList[page],
+                                        contentDescription = "Review image $page",
+                                        modifier = Modifier
+                                            .padding(vertical = 4.dp)
+                                            .height(200.dp)
+                                            .fillMaxWidth()
+                                    )
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.height(8.dp))
+                            if (!review.reply.isNullOrBlank()) {
+                                Text("💬 Your Reply:", style = MaterialTheme.typography.titleSmall, color = textColor)
+                                Text(review.reply!!, color = textColor)
+                            } else if (!review.comment.isNullOrBlank()) {
+                                OutlinedTextField(
+                                    value = replyText,
+                                    onValueChange = { replyText = it },
+                                    label = { Text("Write your reply...") },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(top = 4.dp),
+                                    shape = RoundedCornerShape(12.dp)
+                                )
+
+                                Button(
+                                    onClick = {
+                                        reply(order.review.id, replyText)
+                                        replyText = ""
+                                    },
+                                    modifier = Modifier.align(Alignment.End).padding(top = 6.dp),
+                                    enabled = replyText.isNotBlank()
+                                ) {
+                                    Text("Send Reply")
                                 }
                             }
                         }
@@ -238,36 +290,41 @@ fun OrderCard(
                 }
             }
 
-            // Action Buttons
-            if (order.restaurantStatus.equals("BASE", ignoreCase = true)) {
-                Spacer(modifier = Modifier.height(8.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
-                ) {
-                    Button(onClick = onAccept) {
-                        Text("Accept")
+            // Buttons
+            Spacer(modifier = Modifier.height(16.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
+            ) {
+                when (order.restaurantStatus.uppercase()) {
+                    "BASE" -> {
+                        Button(onClick = onAccept) {
+                            Text("Accept")
+                        }
+                        Spacer(modifier = Modifier.width(8.dp))
+                        OutlinedButton(onClick = onReject) {
+                            Text("Reject")
+                        }
                     }
-                    Spacer(modifier = Modifier.width(8.dp))
-                    OutlinedButton(onClick = onReject) {
-                        Text("Reject")
-                    }
-                }
-            }
 
-            if (order.restaurantStatus.equals("ACCEPTED", ignoreCase = true)) {
-                Spacer(modifier = Modifier.height(8.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
-                ) {
-                    Button(
-                        onClick = onServe,
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))
-                    ) {
-                        Text("Mark as Served", color = Color.White)
+                    "ACCEPTED" -> {
+                        Button(
+                            onClick = onServe,
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))
+                        ) {
+                            Text("Mark as Served", color = Color.White)
+                        }
                     }
                 }
             }
         }
-    }}
+    }
+}
+
+@Composable
+fun SectionHeader(title: String, icon: String = "•", color: Color = MaterialTheme.colorScheme.primary) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Text(icon, color = color, modifier = Modifier.padding(end = 4.dp))
+        Text(title, style = MaterialTheme.typography.titleSmall, color = color)
+    }
+}

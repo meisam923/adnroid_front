@@ -6,6 +6,7 @@ import com.example.apfront.data.remote.dto.CreateMenuRequest
 import com.example.apfront.data.remote.dto.CreateRestaurantRequest
 import com.example.apfront.data.remote.dto.ItemDto
 import com.example.apfront.data.remote.dto.OrderDto
+import com.example.apfront.data.remote.dto.ReplyReviewDto
 import com.example.apfront.data.remote.dto.RestaurantDto
 import com.example.apfront.data.remote.dto.UpdateOrderStatusRequest
 import com.example.apfront.data.remote.dto.VendorMenuResponse
@@ -29,4 +30,5 @@ interface RestaurantRepository {
     // Orders
     suspend fun getRestaurantOrders(token: String, restaurantId: Int, status: String?,search : String?): Resource<List<OrderDto>>
     suspend fun updateOrderStatus(token: String, orderId: Int, request: UpdateOrderStatusRequest): Resource<Unit>
-}
+    suspend fun submitReplyToReview(token: String, reviewId: Long, request: ReplyReviewDto): Resource<Unit>
+    }
