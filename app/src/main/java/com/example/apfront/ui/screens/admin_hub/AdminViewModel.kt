@@ -42,16 +42,16 @@ class AdminViewModel @Inject constructor(
         fetchAllData()
 
         viewModelScope.launch {
-            userSearchQuery.debounce(500).collect { fetchUsers(it) }
+            userSearchQuery.debounce(200).collect { fetchUsers(it) }
         }
         viewModelScope.launch {
-            orderSearchQuery.debounce(500).collect { fetchOrders(it) }
+            orderSearchQuery.debounce(200).collect { fetchOrders(it) }
         }
         viewModelScope.launch {
-            transactionSearchQuery.debounce(500).collect { fetchTransactions(it) }
+            transactionSearchQuery.debounce(200).collect { fetchTransactions(it) }
         }
         viewModelScope.launch {
-            restaurantSearchQuery.debounce(500).collect { fetchRestaurants(it) }
+            restaurantSearchQuery.debounce(200).collect { fetchRestaurants(it) }
         }
     }
 
@@ -69,7 +69,7 @@ class AdminViewModel @Inject constructor(
         _users.value = adminRepository.getAllUsers(token)
     }
 
-    fun updateUserStatus(userId: Long, status: String) = viewModelScope.launch {
+    fun updateUserStatus(userId: String, status: String) = viewModelScope.launch {
         val token = sessionManager.getAuthToken() ?: return@launch
         adminRepository.updateUserStatus(token, userId, status)
         fetchUsers()

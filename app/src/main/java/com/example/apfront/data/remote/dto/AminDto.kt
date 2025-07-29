@@ -8,7 +8,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 
 data class AdminUserDto(
-    @SerializedName("id") val id: Long,
+    @SerializedName("id") val id: String,
     @SerializedName("full_name") val fullName :String,
     @SerializedName("phone") val phone :String,
     @SerializedName("email") val email :String,

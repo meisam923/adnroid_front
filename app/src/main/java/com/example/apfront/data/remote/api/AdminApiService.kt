@@ -14,7 +14,7 @@ interface AdminApiService {
     @PATCH("admin/users/{id}/status")
     suspend fun updateUserStatus(
         @Header("Authorization") token: String,
-        @Path("id") userId: Long,
+        @Path("id") userId: String,
         @Body statusRequest: StatusUpdateRequest
     ): Response<Unit>
 

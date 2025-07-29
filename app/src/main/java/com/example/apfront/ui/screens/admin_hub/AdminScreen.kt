@@ -225,7 +225,7 @@ fun RestaurantTab(restaurants: List<RestaurantDto>, onStatusChange: (Long, Strin
 }
 
 @Composable
-fun UserTab(users: List<AdminUserDto>, onStatusChange: (Long, String) -> Unit) {
+fun UserTab(users: List<AdminUserDto>, onStatusChange: (String, String) -> Unit) {
     LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         items(users) { user ->
             Card(modifier = Modifier.fillMaxWidth()) {
