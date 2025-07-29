@@ -19,7 +19,7 @@ import javax.inject.Inject
 class RegisterViewModel @Inject constructor(
     private val repository: AuthRepository,
     private val sessionManager: SessionManager,
-    private val localeManager: LocaleManager // Inject the LocaleManager
+    private val localeManager: LocaleManager
 ) : ViewModel() {
 
     private val _registerState = MutableStateFlow<Resource<RegisterResponse>>(Resource.Idle())

@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.apfront.data.remote.dto.LoginRequest
 import com.example.apfront.data.remote.dto.LoginResponse
 import com.example.apfront.data.repository.AuthRepository
+import com.example.apfront.util.LocaleManager
 import com.example.apfront.util.Resource
 import com.example.apfront.util.SessionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -16,7 +17,8 @@ import javax.inject.Inject
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val repository: AuthRepository,
-    private val sessionManager: SessionManager // Inject SessionManager
+    private val sessionManager: SessionManager,
+    private val localeManager: LocaleManager // Inject SessionManager
 ) : ViewModel() {
 
     private val _loginState = MutableStateFlow<Resource<LoginResponse>>(Resource.Idle())
@@ -45,5 +47,9 @@ class LoginViewModel @Inject constructor(
     // Helper to get the role for navigation after login
     fun getLoggedInUserRole(): String? {
         return (loginState.value as? Resource.Success)?.data?.user?.role
+    }
+
+    fun onLanguageSelected(languageCode: String) {
+        localeManager.setLocale(languageCode)
     }
 }
