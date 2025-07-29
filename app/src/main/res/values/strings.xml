@@ -44,4 +44,26 @@
     <string name="reject_button">Reject</string>
     <string name="profile_title">My Profile</string>
     <string name="change_picture_button">Change Picture</string>
+    <string name="create_account_title">Create Your Account</string>
+    <string name="personal_information_label">Personal Information</string>
+    <string name="full_name_label">Full Name</string>
+    <string name="phone_number_label">Phone Number</string>
+    <string name="email_optional_label">Email (Optional)</string>
+    <string name="password_label">Password</string>
+    <string name="account_type_label">Account Type</string>
+    <string name="account_type_prompt">Please select the type of account you want to create.</string>
+    <string name="role_buyer">Buyer</string>
+    <string name="role_seller">Seller</string>
+    <string name="role_courier">Courier</string>
+    <string name="bank_info_label">Bank Information (for Payouts)</string>
+    <string name="bank_name_label">Bank Name</string>
+    <string name="account_number_label">Account Number</string>
+    <string name="register_button">Register</string>
+    <string name="unknown_error">An unknown error occurred</string>
+    <string name="language_switcher_description">Change Language</string>
+    <string name="login_subtitle">Taste the convenience.</string>
+    <string name="admin_username_label">Admin Username</string>
+    <string name="admin_password_label">Admin Password</string>
+    <string name="register_prompt">Don\'t have an account? Register</string>
+    <string name="login_error">An error occurred during login</string>
 </resources>

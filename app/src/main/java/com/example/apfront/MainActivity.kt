@@ -1,11 +1,9 @@
-// STEP 1: Replace the entire content of your MainActivity.kt with this final version.
-// This version is clean and correctly calls the one true MainScreen.
 
 package com.example.apfront
 
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.*
@@ -19,7 +17,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.*
 import androidx.navigation.navArgument
-import com.example.apfront.ui.screens.MainScreen // Import the correct MainScreen from its own file
+import com.example.apfront.ui.screens.MainScreen
 import com.example.apfront.ui.screens.auth.LoginScreen
 import com.example.apfront.ui.screens.auth.RegisterScreen
 import com.example.apfront.ui.theme.ApFrontTheme
@@ -28,12 +26,17 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class MainActivity : ComponentActivity() {
+
+class MainActivity : AppCompatActivity() {
+
     @Inject
     lateinit var localeManager: LocaleManager
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         localeManager.applyLocaleOnStartup()
+
         setContent {
             ApFrontTheme {
                 Surface(
@@ -47,10 +50,6 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-/**
- * This is the top-level router for the application. It decides whether to show
- * the authentication flow or the main, logged-in flow.
- */
 @Composable
 fun AppNavigation(
     viewModel: MainViewModel = hiltViewModel()
@@ -103,7 +102,6 @@ fun AppNavigation(
             }
         }
 
-        // The "main_flow" route now correctly calls the external MainScreen
         composable(
             route = "main_flow/{userRole}",
             arguments = listOf(navArgument("userRole") { type = NavType.StringType })

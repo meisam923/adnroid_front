@@ -44,4 +44,26 @@
     <string name="reject_button">رد</string>
     <string name="profile_title">پروفایل من</string>
     <string name="change_picture_button">تغییر عکس</string>
+    <string name="create_account_title">ایجاد حساب کاربری</string>
+    <string name="personal_information_label">اطلاعات شخصی</string>
+    <string name="full_name_label">نام کامل</string>
+    <string name="phone_number_label">شماره تلفن</string>
+    <string name="email_optional_label">ایمیل (اختیاری)</string>
+    <string name="password_label">رمز عبور</string>
+    <string name="account_type_label">نوع حساب</string>
+    <string name="account_type_prompt">لطفا نوع حسابی که میخواهید ایجاد کنید را انتخاب کنید.</string>
+    <string name="role_buyer">خریدار</string>
+    <string name="role_seller">فروشنده</string>
+    <string name="role_courier">پیک</string>
+    <string name="bank_info_label">اطلاعات بانکی (برای تسویه حساب)</string>
+    <string name="bank_name_label">نام بانک</string>
+    <string name="account_number_label">شماره حساب</string>
+    <string name="register_button">ثبت نام</string>
+    <string name="unknown_error">خطای ناشناخته رخ داد</string>
+    <string name="language_switcher_description">تغییر زبان</string>
+    <string name="login_subtitle">راحتی را بچشید.</string>
+    <string name="admin_username_label">نام کاربری ادمین</string>
+    <string name="admin_password_label">رمز عبور ادمین</string>
+    <string name="register_prompt">حساب کاربری ندارید؟ ثبت نام کنید</string>
+    <string name="login_error">خطایی هنگام ورود رخ داد</string>
 </resources>

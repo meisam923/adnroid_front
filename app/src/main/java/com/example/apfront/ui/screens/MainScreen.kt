@@ -38,8 +38,7 @@ fun MainScreen(
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
-    // --- THIS IS THE FIX ---
-    // We now define different sets of navigation items based on the user's role.
+
     val bottomNavItems = when (userRole.uppercase()) {
         "BUYER" -> listOf(
             BottomNavItem.Home,
@@ -49,11 +48,11 @@ fun MainScreen(
             BottomNavItem.Profile
         )
         "SELLER" -> listOf(
-            BottomNavItem.Home, // Will point to SellerHub
+            BottomNavItem.Home,
             BottomNavItem.Profile
         )
         "COURIER" -> listOf(
-            BottomNavItem.Home, // Will point to CourierHub
+            BottomNavItem.Home,
             BottomNavItem.Profile
         )
         "ADMIN" -> listOf(
@@ -62,7 +61,7 @@ fun MainScreen(
         )
         else -> emptyList() // Default case
     }
-    // --- END OF FIX ---
+
 
     Scaffold(
         bottomBar = {
@@ -93,8 +92,6 @@ fun MainScreen(
             Modifier.padding(innerPadding)
         ) {
             composable(BottomNavItem.Home.route) {
-                // --- THIS IS THE FIX ---
-                // The "Home" route now correctly shows the right screen for each role.
                 when (userRole.uppercase()) {
                     "SELLER" -> SellerHubScreen(navController = navController)
                     "BUYER" -> VendorListScreen(navController = navController)
@@ -173,7 +170,6 @@ fun MainScreen(
                 )
             }
             composable(
-                // The route can have an optional couponId for editing
                 route = "create_edit_coupon?couponId={couponId}",
                 arguments = listOf(
                     navArgument("couponId") { type = NavType.StringType; nullable = true }
