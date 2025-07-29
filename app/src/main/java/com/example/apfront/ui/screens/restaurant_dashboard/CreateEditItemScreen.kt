@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -66,10 +67,10 @@ fun CreateEditItemScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Add/Edit Item") },
+                title = { Text(stringResource(id = R.string.add_edit_item_r)) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Go back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(id = R.string.go_back_description))
                     }
                 }
             )
@@ -114,7 +115,6 @@ fun CreateEditItemScreen(
                     }
 
                 } else {
-                    // Show a simple icon if there's no image
                     Icon(
                         imageVector = Icons.Default.Fastfood,
                         contentDescription = "Default item icon",
@@ -129,23 +129,27 @@ fun CreateEditItemScreen(
                 onClick = { photoPickerLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) },
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             ) {
-                Text("Select Image")
+                Text(stringResource(id = R.string.select_image_button))
             }
             Spacer(modifier = Modifier.height(16.dp))
 
             // --- Text Fields ---
-            OutlinedTextField(value = name, onValueChange = { viewModel.name.value = it }, label = { Text("Item Name") }, modifier = Modifier.fillMaxWidth())
+            OutlinedTextField(value = name, onValueChange = { viewModel.name.value = it }, label = { Text(
+                stringResource(id = R.string.item_name_labelr)
+            ) }, modifier = Modifier.fillMaxWidth())
             Spacer(modifier = Modifier.height(8.dp))
-            OutlinedTextField(value = description, onValueChange = { viewModel.description.value = it }, label = { Text("Description") }, modifier = Modifier.fillMaxWidth().height(120.dp))
+            OutlinedTextField(value = description, onValueChange = { viewModel.description.value = it }, label = { Text(
+                stringResource(id = R.string.item_description_label)
+            ) }, modifier = Modifier.fillMaxWidth().height(120.dp))
             Spacer(modifier = Modifier.height(8.dp))
-            OutlinedTextField(value = price, onValueChange = { viewModel.price.value = it }, label = { Text("Price") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), modifier = Modifier.fillMaxWidth())
+            OutlinedTextField(value = price, onValueChange = { viewModel.price.value = it }, label = { Text(stringResource(id = R.string.pricer)) }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), modifier = Modifier.fillMaxWidth())
             Spacer(modifier = Modifier.height(8.dp))
-            OutlinedTextField(value = supply, onValueChange = { viewModel.supply.value = it }, label = { Text("Supply") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), modifier = Modifier.fillMaxWidth())
+            OutlinedTextField(value = supply, onValueChange = { viewModel.supply.value = it }, label = { Text(stringResource(id = R.string.supplyr)) }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), modifier = Modifier.fillMaxWidth())
             Spacer(modifier = Modifier.height(8.dp))
             OutlinedTextField(
                 value = keywords,
                 onValueChange = { viewModel.keywords.value = it },
-                label = { Text("Keywords (comma-separated)") },
+                label = { Text(stringResource(id = R.string.keyword_comma_separated)) },
                 modifier = Modifier.fillMaxWidth()
             )
             Spacer(modifier = Modifier.height(24.dp))

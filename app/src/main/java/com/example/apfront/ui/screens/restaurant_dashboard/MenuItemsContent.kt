@@ -86,7 +86,7 @@ fun MenuItemsContent(
                     }
                 }
                 is MenuItemsUiState.Error -> {
-                    Text("An error occurred. Code: ${state.code}")
+                    Text("${stringResource(id = R.string.generic_error)} Code: ${state.code}")
                 }
             }
         }
@@ -108,7 +108,7 @@ fun AllItemsList(
 
     if (allItems.isEmpty()) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Text("You haven't added any food items yet.")
+            Text(stringResource(id = R.string.u_havent_added_any))
         }
     } else {
         LazyColumn(
@@ -138,7 +138,6 @@ fun FoodItemCard(
             modifier = Modifier.fillMaxSize(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Using your custom Base64Image composable
             Base64Image(
                 base64Data = item.image,
                 contentDescription = item.name,
@@ -148,12 +147,12 @@ fun FoodItemCard(
                 modifier = Modifier.weight(1f).padding(horizontal = 12.dp)
             ) {
                 Text(item.name, style = MaterialTheme.typography.titleMedium)
-                Text("Price: ${item.price}", style = MaterialTheme.typography.bodySmall)
-                Text("Supply: ${item.supply}", style = MaterialTheme.typography.bodySmall)
+                Text("${stringResource(id = R.string.pricer)}: ${item.price}", style = MaterialTheme.typography.bodySmall)
+                Text("${stringResource(id = R.string.supplyr)}: ${item.supply}", style = MaterialTheme.typography.bodySmall)
             }
             Column {
-                TextButton(onClick = onEditClicked) { Text("Edit") }
-                TextButton(onClick = onDeleteClicked) { Text("Delete") }
+                TextButton(onClick = onEditClicked) { Text(stringResource(id = R.string.editr)) }
+                TextButton(onClick = onDeleteClicked) { Text(stringResource(id = R.string.deleter)) }
             }
         }
     }
@@ -175,14 +174,14 @@ fun MenuCategoriesList(
     if (showAddCategoryDialog) {
         AlertDialog(
             onDismissRequest = { showAddCategoryDialog = false },
-            title = { Text("New Menu Category") },
-            text = { OutlinedTextField(value = newCategoryTitle, onValueChange = { newCategoryTitle = it }, label = { Text("Category Title") }) },
+            title = { Text(stringResource(id = R.string.new_menu_category)) },
+            text = { OutlinedTextField(value = newCategoryTitle, onValueChange = { newCategoryTitle = it }, label = { Text(stringResource(id = R.string.category_title)) }) },
             confirmButton = { Button(onClick = {
                 viewModel.createMenuCategory(newCategoryTitle)
                 showAddCategoryDialog = false
                 newCategoryTitle = ""
-            }) { Text("Create") } },
-            dismissButton = { TextButton(onClick = { showAddCategoryDialog = false }) { Text("Cancel") } }
+            }) { Text(stringResource(id = R.string.creater)) } },
+            dismissButton = { TextButton(onClick = { showAddCategoryDialog = false }) { Text(stringResource(id = R.string.cancelr)) } }
         )
     }
 
@@ -199,7 +198,7 @@ fun MenuCategoriesList(
 
     Column {
         Button(onClick = { showAddCategoryDialog = true }, modifier = Modifier.padding(16.dp)) {
-            Text("Add New Category")
+            Text(stringResource(id = R.string.add_new_category))
         }
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
@@ -236,7 +235,7 @@ fun MenuCategoryCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(title, style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
-                IconButton(onClick = onDeleteCategoryClicked) { Icon(Icons.Default.Delete, contentDescription = "Delete Category") }
+                IconButton(onClick = onDeleteCategoryClicked) { Icon(Icons.Default.Delete, contentDescription = stringResource(id = R.string.delete_category_r)) }
                 Icon(if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore, contentDescription = "Expand")
             }
             AnimatedVisibility(visible = expanded) {
@@ -245,12 +244,12 @@ fun MenuCategoryCard(
                         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                             Text(item.name, modifier = Modifier.weight(1f))
                             IconButton(onClick = { onRemoveItemClicked(item.id) }) {
-                                Icon(Icons.Default.RemoveCircleOutline, contentDescription = "Remove item from menu")
+                                Icon(Icons.Default.RemoveCircleOutline, contentDescription = stringResource(id = R.string.remove_item_from_menu))
                             }
                         }
                     }
                     TextButton(onClick = onAddItemClicked, modifier = Modifier.align(Alignment.End)) {
-                        Text("Add Item...")
+                        Text(stringResource(id = R.string.add_item___))
                     }
                 }
             }
@@ -266,7 +265,7 @@ fun AddItemToMenuDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Add Item to Menu") },
+        title = { Text(stringResource(id = R.string.add_item_to_menu)) },
         text = {
             LazyColumn {
                 items(allItems) { item ->
@@ -277,7 +276,7 @@ fun AddItemToMenuDialog(
                 }
             }
         },
-        confirmButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
+        confirmButton = { TextButton(onClick = onDismiss) { Text(stringResource(id = R.string.cancelr)) } }
     )
 }
 @Composable
