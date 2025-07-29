@@ -97,8 +97,11 @@ data class ReviewDto(
     @SerializedName("id")val id: Long,
     val rating: Int?,
     val comment: String?,
-    val reply :String?,
+    val reply:String?,
     @SerializedName("base64Images") val base64Images: List<String>?,
     @SerializedName("createdAt") val createdAt: String?
+)
+data class ReplyReviewDto(
+    @SerializedName("reply") val reply :String
 )
 

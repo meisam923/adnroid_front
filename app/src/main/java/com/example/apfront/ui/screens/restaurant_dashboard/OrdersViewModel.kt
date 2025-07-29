@@ -3,6 +3,7 @@ package com.example.apfront.ui.screens.restaurant_dashboard
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.apfront.data.remote.dto.OrderDto
+import com.example.apfront.data.remote.dto.ReplyReviewDto
 import com.example.apfront.data.remote.dto.UpdateOrderStatusRequest
 import com.example.apfront.data.repository.RestaurantRepository
 import com.example.apfront.util.Resource
@@ -69,6 +70,19 @@ class OrdersViewModel @Inject constructor(
             if (result is Resource.Success) {
                 // 🆕 Refresh using last search query
                 loadOrders(restaurantId, currentFilter, lastSearchQuery)
+            }
+        }
+    }
+    fun submitReplyReview(reviewId: Long, reply: String){
+        val token = sessionManager.getAuthToken()
+        if (token.isNullOrEmpty()) { _uiState.value = OrdersUiState.Error(401)
+            return }
+        viewModelScope.launch {
+            val request = ReplyReviewDto(reply = reply)
+            val result = repository.submitReplyToReview(token, reviewId, request)
+            if (result is Resource.Success) {
+                // 🆕 Refresh using last search query
+                loadOrders(currentRestaurantId!!, lastStatus!!, lastSearchQuery)
             }
         }
     }

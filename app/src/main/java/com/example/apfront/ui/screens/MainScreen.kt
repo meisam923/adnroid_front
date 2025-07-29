@@ -12,6 +12,7 @@ import androidx.navigation.compose.*
 import androidx.navigation.navArgument
 import com.example.apfront.ui.navigation.BottomNavItem
 import com.example.apfront.ui.screens.admin.AdminScreen
+import com.example.apfront.ui.screens.admin.CreateEditCouponScreen
 import com.example.apfront.ui.screens.checkout.CheckoutScreen
 import com.example.apfront.ui.screens.courier_hub.CourierHubScreen
 import com.example.apfront.ui.screens.favorites.FavoritesScreen
@@ -22,6 +23,7 @@ import com.example.apfront.ui.screens.orderdetail.OrderDetailScreen
 import com.example.apfront.ui.screens.orderdetail.OrderSuccessScreen
 import com.example.apfront.ui.screens.orderhistory.OrderHistoryScreen
 import com.example.apfront.ui.screens.profile.ProfileScreen
+import com.example.apfront.ui.screens.restaurant_dashboard.CreateEditItemScreen
 import com.example.apfront.ui.screens.restaurantdetail.RestaurantDetailScreen
 import com.example.apfront.ui.screens.seller_hub.SellerHubScreen
 import com.example.apfront.ui.screens.vendorlist.VendorListScreen
@@ -55,7 +57,7 @@ fun MainScreen(
             BottomNavItem.Profile
         )
         "ADMIN" -> listOf(
-            BottomNavItem.Home, // Will point to CourierHub
+            BottomNavItem.Home,
             BottomNavItem.Profile
         )
         else -> emptyList() // Default case
@@ -156,6 +158,28 @@ fun MainScreen(
             }
             composable("favorites") {
                 FavoritesScreen(navController = navController)
+            }
+            composable(
+                route = "create_edit_item/{restaurantId}?itemId={itemId}",
+                arguments = listOf(
+                    navArgument("restaurantId") { type = NavType.IntType },
+                    navArgument("itemId") { type = NavType.IntType; defaultValue = -1 }
+                )
+            ) { backStackEntry ->
+                val restaurantId = backStackEntry.arguments?.getInt("restaurantId") ?: 0
+                CreateEditItemScreen(
+                    navController = navController,
+                    restaurantId = restaurantId
+                )
+            }
+            composable(
+                // The route can have an optional couponId for editing
+                route = "create_edit_coupon?couponId={couponId}",
+                arguments = listOf(
+                    navArgument("couponId") { type = NavType.StringType; nullable = true }
+                )
+            ) {
+                CreateEditCouponScreen(navController = navController)
             }
         }
     }

@@ -104,4 +104,7 @@ class RestaurantRepositoryImpl @Inject constructor(
     override suspend fun updateOrderStatus(token: String, orderId: Int, request: UpdateOrderStatusRequest): Resource<Unit> {
         return safeApiCall { api.updateOrderStatus("Bearer $token", orderId, request) }
     }
+    override suspend fun submitReplyToReview(token: String, reviewId: Long, request: ReplyReviewDto): Resource<Unit> {
+        return safeApiCall { api.submitReplyReview("Bearer $token", reviewId, request) }
+    }
 }
