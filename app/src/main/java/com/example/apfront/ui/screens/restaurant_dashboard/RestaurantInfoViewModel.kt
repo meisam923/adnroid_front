@@ -22,7 +22,6 @@ class RestaurantInfoViewModel @Inject constructor(
     private val sessionManager: SessionManager
 ) : ViewModel() {
 
-    // State for each input field
     val name = MutableStateFlow("")
     val address = MutableStateFlow("")
     val phone = MutableStateFlow("")
@@ -34,7 +33,6 @@ class RestaurantInfoViewModel @Inject constructor(
     private val _updateState = MutableStateFlow<Resource<RestaurantDto>>(Resource.Idle())
     val updateState: StateFlow<Resource<RestaurantDto>> = _updateState
 
-    // This function pre-fills the form with existing data
     fun loadRestaurantInfo(restaurant: RestaurantDto) {
         name.value = restaurant.name
         address.value = restaurant.address
@@ -45,22 +43,19 @@ class RestaurantInfoViewModel @Inject constructor(
         logoImageUri.value = null // Reset any newly selected image
     }
 
-    // This function is called when the "Save" button is clicked
     fun onUpdateClicked(restaurantId: Int, context: Context) {
         val token = sessionManager.getAuthToken()
-        if (token.isNullOrEmpty()) { /* ... handle error ... */ return }
+        if (token.isNullOrEmpty()) {  return }
 
         viewModelScope.launch {
             _updateState.value = Resource.Loading()
 
-            // Convert the newly selected image URI to Base64 if it exists
             val newLogoBase64 = logoImageUri.value?.let { uriToBase64(context, it) }
 
             val request = CreateRestaurantRequest(
                 name = name.value,
                 address = address.value,
                 phone = phone.value,
-                // Use the new logo if selected, otherwise keep the existing one
                 logoBase64 = newLogoBase64 ?: existingLogoBase64.value,
                 taxFee = taxFee.value.toIntOrNull() ?: 0,
                 additionalFee = additionalFee.value.toIntOrNull() ?: 0
