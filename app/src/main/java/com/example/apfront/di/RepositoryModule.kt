@@ -12,6 +12,8 @@ import com.example.apfront.data.repository.FavoriteRepository
 import com.example.apfront.data.repository.FavoriteRepositoryImp
 import com.example.apfront.data.repository.ItemRepository
 import com.example.apfront.data.repository.ItemRepositoryImp
+import com.example.apfront.data.repository.NotificationRepository
+import com.example.apfront.data.repository.NotificationRepositoryImp
 import com.example.apfront.data.repository.OrderRepository
 import com.example.apfront.data.repository.OrderRepositoryImp
 import com.example.apfront.data.repository.PaymentRepository
@@ -75,6 +77,9 @@ abstract class RepositoryModule {
     abstract fun bindCourierRepository(imp: CourierRepositoryImp): CourierRepository
     @Binds @Singleton
     abstract fun bindRatingRepository(imp: RatingRepositoryImp): RatingRepository
+
+    @Binds @Singleton
+    abstract fun bindNotificationRepository(imp: NotificationRepositoryImp): NotificationRepository
 
 
 }

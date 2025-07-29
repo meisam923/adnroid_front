@@ -14,7 +14,11 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AdminPanelSettings
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -26,7 +30,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -41,9 +44,34 @@ fun ProfileScreen(
     viewModel: ProfileViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val activity = (LocalContext.current as? Activity)
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text(stringResource(R.string.profile_title)) }) }
+        topBar = {
+            TopAppBar(
+                title = { Text(stringResource(R.string.profile_title)) },
+                actions = {
+                    var expanded by remember { mutableStateOf(false) }
+                    Box {
+                        IconButton(onClick = { expanded = true }) {
+                            Icon(Icons.Default.Language, contentDescription = stringResource(R.string.language_switcher_description))
+                        }
+                        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                            DropdownMenuItem(text = { Text("English") }, onClick = {
+                                viewModel.onLanguageSelected("en")
+                                activity?.recreate()
+                                expanded = false
+                            })
+                            DropdownMenuItem(text = { Text("فارسی") }, onClick = {
+                                viewModel.onLanguageSelected("fa")
+                                activity?.recreate()
+                                expanded = false
+                            })
+                        }
+                    }
+                }
+            )
+        }
     ) { paddingValues ->
         Box(
             modifier = Modifier.fillMaxSize().padding(paddingValues),
@@ -104,10 +132,7 @@ fun UserProfileContent(
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
 
-    // --- THIS IS THE FIX for the language switcher ---
-    // Get a reference to the current Activity so we can restart it.
     val activity = (LocalContext.current as? Activity)
-    // --- END OF FIX ---
 
     var fullName by remember { mutableStateOf("") }
     var phone by remember { mutableStateOf("") }
@@ -154,21 +179,19 @@ fun UserProfileContent(
             error = painterResource(id = R.drawable.ic_avatar_placeholder)
         )
         TextButton(onClick = {
-            imagePickerLauncher.launch(
-                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-            )
+            imagePickerLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
         }) {
             Text(stringResource(R.string.change_picture_button))
         }
         Spacer(modifier = Modifier.height(24.dp))
 
-        OutlinedTextField(value = fullName, onValueChange = { fullName = it }, label = { Text("Full Name") }, modifier = Modifier.fillMaxWidth())
+        OutlinedTextField(value = fullName, onValueChange = { fullName = it }, label = { Text(stringResource(R.string.full_name_label)) }, leadingIcon = { Icon(Icons.Default.Person, null) }, modifier = Modifier.fillMaxWidth())
         Spacer(modifier = Modifier.height(16.dp))
-        OutlinedTextField(value = phone, onValueChange = { phone = it }, label = { Text("Phone Number") }, modifier = Modifier.fillMaxWidth(), keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone))
+        OutlinedTextField(value = phone, onValueChange = { phone = it }, label = { Text(stringResource(R.string.phone_number_label)) }, leadingIcon = { Icon(Icons.Default.Phone, null) }, modifier = Modifier.fillMaxWidth(), keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone))
         Spacer(modifier = Modifier.height(16.dp))
-        OutlinedTextField(value = email, onValueChange = { email = it }, label = { Text("Email") }, modifier = Modifier.fillMaxWidth())
+        OutlinedTextField(value = email, onValueChange = { email = it }, label = { Text(stringResource(R.string.email_label)) }, leadingIcon = { Icon(Icons.Default.Email, null) }, modifier = Modifier.fillMaxWidth())
         Spacer(modifier = Modifier.height(16.dp))
-        OutlinedTextField(value = address, onValueChange = { address = it }, label = { Text("Address") }, modifier = Modifier.fillMaxWidth())
+        OutlinedTextField(value = address, onValueChange = { address = it }, label = { Text(stringResource(R.string.address_label)) }, leadingIcon = { Icon(Icons.Default.Home, null) }, modifier = Modifier.fillMaxWidth())
         Spacer(modifier = Modifier.height(16.dp))
 
         if (uiState.user?.role?.equals("SELLER", ignoreCase = true) == true || uiState.user?.role?.equals("COURIER", ignoreCase = true) == true) {
@@ -179,29 +202,12 @@ fun UserProfileContent(
             OutlinedTextField(value = accountNumber, onValueChange = { accountNumber = it }, label = { Text("Account Number") }, modifier = Modifier.fillMaxWidth())
         }
 
-        Divider(modifier = Modifier.padding(vertical = 24.dp))
+        HorizontalDivider(modifier = Modifier.padding(vertical = 24.dp))
         ListItem(
-            headlineContent = { Text("My Favorites") },
+            headlineContent = { Text(stringResource(R.string.my_favorites_button)) },
             modifier = Modifier.clickable { navController.navigate("favorites") }
         )
-        Divider(modifier = Modifier.padding(vertical = 8.dp))
-
-        Text("Language", style = MaterialTheme.typography.titleMedium, modifier = Modifier.fillMaxWidth().padding(top = 16.dp))
-        Row(Modifier.fillMaxWidth().padding(top = 8.dp)) {
-            // --- THIS IS THE FIX ---
-            Button(onClick = {
-                viewModel.onLanguageSelected("en")
-                activity?.recreate() // Restart the activity to apply the language change
-            }) { Text("English") }
-            Spacer(modifier = Modifier.width(16.dp))
-            Button(onClick = {
-                viewModel.onLanguageSelected("fa")
-                activity?.recreate() // Restart the activity to apply the language change
-            }) { Text("فارسی") }
-            // --- END OF FIX ---
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
+        HorizontalDivider(modifier = Modifier.padding(vertical = 24.dp))
 
         Button(
             onClick = { viewModel.updateProfile(fullName, phone, email, address, bankName, accountNumber) },
@@ -211,7 +217,7 @@ fun UserProfileContent(
             if (uiState.isLoading) {
                 CircularProgressIndicator(modifier = Modifier.size(24.dp), color = Color.White)
             } else {
-                Text("Save Changes")
+                Text(stringResource(R.string.save_changes_button))
             }
         }
         Spacer(modifier = Modifier.height(16.dp))
@@ -222,7 +228,7 @@ fun UserProfileContent(
             },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Logout")
+            Text(stringResource(R.string.logout_button))
         }
     }
 }

@@ -1,0 +1,57 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="100dp"
+    android:height="100dp"
+    android:viewportWidth="100"
+    android:viewportHeight="100">
+
+    <!-- Plate base -->
+    <path
+        android:fillColor="#DADADA"
+        android:pathData="M20,75
+                          A30,5 0 0,0 80,75
+                          A30,5 0 0,0 20,75
+                          Z" />
+
+    <!-- Cloche dome -->
+    <path
+        android:fillColor="#BBBBBB"
+        android:pathData="M30,70
+                          Q30,40 50,30
+                          Q70,40 70,70
+                          Z" />
+
+    <!-- Dome shine -->
+    <path
+        android:fillColor="#DDDDDD"
+        android:pathData="M34,70
+                          Q34,43 50,35
+                          Q66,43 66,70
+                          Z" />
+
+    <!-- Dome handle -->
+    <path
+        android:fillColor="#888888"
+        android:pathData="M47,28
+                          A3,3 0 1,0 53,28
+                          A3,3 0 1,0 47,28
+                          Z" />
+
+    <!-- Steam line 1 -->
+    <path
+        android:fillColor="#CCCCCC"
+        android:pathData="M40,15
+                          Q38,10 40,5" />
+
+    <!-- Steam line 2 -->
+    <path
+        android:fillColor="#CCCCCC"
+        android:pathData="M50,12
+                          Q48,8 50,3" />
+
+    <!-- Steam line 3 -->
+    <path
+        android:fillColor="#CCCCCC"
+        android:pathData="M60,15
+                          Q62,10 60,5" />
+
+</vector>

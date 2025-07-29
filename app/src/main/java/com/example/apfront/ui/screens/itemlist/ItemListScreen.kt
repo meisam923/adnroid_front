@@ -15,6 +15,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -33,21 +34,15 @@ fun ItemListScreen(
     val uiState by viewModel.uiState.collectAsState()
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Search for Food") }) }
+        topBar = { TopAppBar(title = { Text(stringResource(R.string.search_items_title)) }) }
     ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ) {
+        Column(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
             OutlinedTextField(
                 value = uiState.searchQuery,
                 onValueChange = { viewModel.onSearchQueryChanged(it) },
-                label = { Text("Enter a food name...") },
+                label = { Text(stringResource(R.string.search_items_placeholder)) },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
+                modifier = Modifier.fillMaxWidth().padding(16.dp),
                 singleLine = true
             )
 
@@ -55,12 +50,12 @@ fun ItemListScreen(
                 if (uiState.isLoading) {
                     CircularProgressIndicator()
                 } else if (uiState.error != null) {
-                    Text("Error: ${uiState.error}", color = MaterialTheme.colorScheme.error)
+                    Text("${stringResource(R.string.error_prefix)} ${uiState.error}", color = MaterialTheme.colorScheme.error)
                 } else if (uiState.items.isEmpty() && uiState.searchQuery.isNotBlank()) {
-                    Text("No results found for \"${uiState.searchQuery}\"")
+                    Text(stringResource(R.string.no_search_results, uiState.searchQuery))
                 } else if (uiState.items.isEmpty() && uiState.searchQuery.isBlank()) {
                     Text(
-                        text = "Find your favorite food from any restaurant!",
+                        text = stringResource(R.string.search_prompt),
                         style = MaterialTheme.typography.titleMedium,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.padding(horizontal = 32.dp)
@@ -74,7 +69,6 @@ fun ItemListScreen(
                             FoodItemCard(
                                 item = item,
                                 onClick = {
-                                    // Navigate to the item detail screen, passing the item's ID
                                     navController.navigate("item_detail/${item.id}")
                                 }
                             )
@@ -89,38 +83,27 @@ fun ItemListScreen(
 @Composable
 fun FoodItemCard(item: FoodItemDto, onClick: () -> Unit) {
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick), // Apply the clickable modifier here
+        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-        Row(
-            modifier = Modifier.padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+        Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
-                    .data(item.imageUrl)
+                    .data("data:image/jpeg;base64," + item.imageUrl)
                     .crossfade(true)
                     .build(),
                 placeholder = painterResource(R.drawable.ic_placeholder_food),
                 error = painterResource(R.drawable.ic_placeholder_food),
                 contentDescription = item.name,
                 contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .size(80.dp)
-                    .clip(RoundedCornerShape(8.dp))
+                modifier = Modifier.size(80.dp).clip(RoundedCornerShape(8.dp))
             )
 
             Spacer(modifier = Modifier.width(16.dp))
 
             Column(modifier = Modifier.weight(1f)) {
                 Text(item.name, style = MaterialTheme.typography.titleMedium)
-                Text(
-                    item.description,
-                    style = MaterialTheme.typography.bodySmall,
-                    maxLines = 2
-                )
+                Text(item.description, style = MaterialTheme.typography.bodySmall, maxLines = 2)
             }
             Spacer(modifier = Modifier.width(16.dp))
             Text("$${item.price}", style = MaterialTheme.typography.titleMedium)

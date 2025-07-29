@@ -1,10 +1,12 @@
 package com.example.apfront.data.repository
 
 import com.example.apfront.data.remote.api.AuthApiService
+import com.example.apfront.data.remote.dto.ForgotPasswordRequest
 import com.example.apfront.data.remote.dto.LoginRequest
 import com.example.apfront.data.remote.dto.LoginResponse
 import com.example.apfront.data.remote.dto.RegisterRequest
 import com.example.apfront.data.remote.dto.RegisterResponse
+import com.example.apfront.data.remote.dto.ResetPasswordRequest
 import com.example.apfront.data.remote.dto.UpdateProfileRequest
 import com.example.apfront.data.remote.dto.UserDto
 import com.example.apfront.util.Resource
@@ -75,6 +77,31 @@ class AuthRepositoryImpl @Inject constructor(
             }
         } catch (e: Exception) {
             Resource.Error("An unknown error occurred during logout: ${e.localizedMessage}")
+        }
+    }
+    override suspend fun initiatePasswordReset(request: ForgotPasswordRequest): Resource<Unit> {
+        return try {
+            val response = api.initiatePasswordReset(request)
+            if (response.isSuccessful) {
+                Resource.Success(Unit)
+            } else {
+                Resource.Error("Failed to send reset code: ${response.message()}")
+            }
+        } catch (e: Exception) {
+            Resource.Error(e.message ?: "An unknown error occurred")
+        }
+    }
+
+    override suspend fun completePasswordReset(request: ResetPasswordRequest): Resource<Unit> {
+        return try {
+            val response = api.completePasswordReset(request)
+            if (response.isSuccessful) {
+                Resource.Success(Unit)
+            } else {
+                Resource.Error("Failed to reset password: ${response.message()}")
+            }
+        } catch (e: Exception) {
+            Resource.Error(e.message ?: "An unknown error occurred")
         }
     }
 }

@@ -66,4 +66,131 @@
     <string name="admin_password_label">رمز عبور ادمین</string>
     <string name="register_prompt">حساب کاربری ندارید؟ ثبت نام کنید</string>
     <string name="login_error">خطایی هنگام ورود رخ داد</string>
+    <string name="notifications_title">اعلان‌ها</string>
+    <string name="notifications_description">آخرین به روز رسانی های حساب و سفارش خود را مشاهده کنید.</string>
+    <string name="no_notifications_message">شما هیچ اعلان جدیدی ندارید.</string>
+    <string name="unread_notifications_badge_description">%d اعلان خوانده نشده</string>
+    <string name="forgot_password_prompt">فراموشی رمز عبور؟</string>
+    <string name="forgot_password_title">بازیابی رمز عبور</string>
+    <string name="forgot_password_instructions">ایمیل مرتبط با حساب خود را وارد کنید تا کد بازیابی برای شما ارسال شود.</string>
+    <string name="send_code_button">ارسال کد</string>
+    <string name="reset_code_sent_message">کد بازیابی به ایمیل شما ارسال شد.</string>
+    <string name="reset_password_instructions">لطفا کد ارسال شده به ایمیل و رمز عبور جدید خود را وارد کنید.</string>
+    <string name="reset_code_label">کد بازیابی</string>
+    <string name="new_password_label">رمز عبور جدید</string>
+    <string name="confirm_password_button">تایید رمز عبور جدید</string>
+    <string name="password_reset_success">رمز عبور با موفقیت بازیابی شد! اکنون میتوانید وارد شوید.</string>
+    <string name="email_label">ایمیل</string>
+    <string name="go_back_description">بازگشت</string>
+    <string name="my_favorites_button">موارد دلخواه من</string>
+    <string name="language_label">زبان</string>
+    <string name="save_changes_button">ذخیره تغییرات</string>
+    <string name="logout_button">خروج</string>
+    <string name="profile_update_success">پروفایل با موفقیت به روز شد!</string>
+    <string name="profile_update_failed">به روز رسانی ناموفق بود</string>
+    <string name="admin_profile_title">پنل ادمین</string>
+    <string name="bottom_nav_home">خانه</string>
+    <string name="bottom_nav_search">جستجو</string>
+    <string name="bottom_nav_orders">سفارشات</string>
+    <string name="bottom_nav_wallet">کیف پول</string>
+    <string name="bottom_nav_profile">پروفایل</string>
+    <string name="checkout_title">سفارش شما</string>
+    <string name="delivery_address_label">آدرس تحویل</string>
+    <string name="enter_address_placeholder">آدرس خود را وارد کنید</string>
+    <string name="items_in_cart_label">موارد موجود در سبد خرید</string>
+    <string name="payment_method_label">روش پرداخت</string>
+    <string name="payment_method_online">آنلاین</string>
+    <string name="payment_method_wallet">کیف پول</string>
+    <string name="wallet_balance_label">(موجودی: $%1$.2f)</string>
+    <string name="coupon_code_label">کد تخفیف</string>
+    <string name="apply_button">اعمال</string>
+    <string name="coupon_applied_message">کوپن \'%1$s\' اعمال شد!</string>
+    <string name="invalid_coupon_message">کوپن نامعتبر است</string>
+    <string name="price_summary_subtotal">جمع کل</string>
+    <string name="price_summary_tax">مالیات</string>
+    <string name="price_summary_additional">هزینه اضافی</string>
+    <string name="price_summary_delivery">هزینه تحویل</string>
+    <string name="price_summary_discount">تخفیف</string>
+    <string name="price_summary_total">مجموع</string>
+    <string name="proceed_to_payment_button">ادامه برای پرداخت</string>
+    <string name="restaurant_card_image_description">تصویر %1$s</string>
+    <string name="search_by_name_placeholder">جستجو بر اساس نام...</string>
+    <string name="rating_plus">%1$.1f+</string>
+    <string name="favorites_title">موارد دلخواه من</string>
+    <string name="no_favorites_message">شما هنوز هیچ رستورانی را به موارد دلخواه اضافه نکرده‌اید.</string>
+    <string name="search_items_title">جستجوی غذا</string>
+    <string name="search_items_placeholder">نام غذا را وارد کنید...</string>
+    <string name="no_search_results">هیچ نتیجه‌ای برای \"%1$s\" یافت نشد</string>
+    <string name="search_prompt">غذای مورد علاقه خود را از هر رستورانی پیدا کنید!</string>
+    <string name="courier_hub_title">تحویل‌های موجود</string>
+    <string name="no_available_deliveries">در حال حاضر هیچ تحویل موجودی وجود ندارد.</string>
+    <string name="delivery_request_card_title">درخواست تحویل #%1$d</string>
+    <string name="pickup_from_label">تحویل از: %1$s</string>
+    <string name="deliver_to_label">تحویل به: %1$s</string>
+    <string name="delivery_fee_label">هزینه تحویل: $%1$.2f</string>
+    <string name="courier_not_verified_title">حساب در انتظار تایید</string>
+    <string name="courier_not_verified_message">حساب پیک شما در حال بررسی است. پس از تایید حساب توسط مدیر، قادر به مشاهده تحویل‌های موجود خواهید بود.</string>
+    <string name="edit_review_title">ویرایش نظر شما</string>
+    <string name="edit_comment_label">نظر خود را ویرایش کنید</string>
+    <string name="delete_review_button">حذف نظر</string>
+    <string name="online_payment_title">تکمیل پرداخت</string>
+    <string name="card_details_label">اطلاعات کارت را وارد کنید</string>
+    <string name="card_number_label">شماره کارت</string>
+    <string name="card_expiry_label">MM/YY</string>
+    <string name="card_cvc_label">CVC</string>
+    <string name="pay_now_button">پرداخت</string>
+    <string name="order_placed_title">سفارش ثبت شد!</string>
+    <string name="order_success_message">سفارش شما با شماره #%1$d با موفقیت ثبت شد. میتوانید وضعیت آن را در بخش \'سفارشات من\' پیگیری کنید.</string>
+    <string name="order_summary_label">خلاصه سفارش</string>
+    <string name="delivering_to_label">تحویل به: %1$s</string>
+    <string name="total_paid_label">مبلغ کل پرداخت شده</string>
+    <string name="back_to_home_button">بازگشت به صفحه اصلی</string>
+    <string name="order_detail_title">سفارش #%1$d</string>
+    <string name="status_label">وضعیت</string>
+    <string name="price_summary_label">خلاصه قیمت</string>
+    <string name="rate_this_order_button">به این سفارش امتیاز دهید</string>
+    <string name="view_edit_review_button">مشاهده/ویرایش نظر</string>
+
+
+    <string name="wallet_title">کیف پول من</string>
+    <string name="current_balance_label">موجودی فعلی</string>
+    <string name="top_up_wallet_label">شارژ کیف پول</string>
+    <string name="amount_label">مبلغ</string>
+    <string name="add_funds_button">افزودن وجه</string>
+    <string name="transaction_history_label">تاریخچه تراکنش‌ها</string>
+    <string name="no_transactions_message">هنوز تراکنشی وجود ندارد.</string>
+    <string name="transaction_method_label">روش: %1$s</string>
+    <string name="failed_to_load_wallet_data">خطا در بارگیری اطلاعات کیف پول.</string>
+
+
+    <string name="restaurant_detail_loading">در حال بارگذاری...</string>
+    <string name="toggle_favorite_description">تغییر وضعیت علاقه مندی</string>
+    <string name="cart_items_count">%d مورد</string>
+    <string name="view_order_button">مشاهده سفارش - $%1$.2f</string>
+
+    <string name="item_detail_loading">در حال بارگذاری...</string>
+    <string name="add_to_cart_button">افزودن به سبد خرید</string>
+    <string name="remove_from_cart_button">حذف از سبد خرید</string>
+
+    <string name="order_history_title">سفارشات من</string>
+    <string name="no_orders_message">شما هنوز هیچ سفارشی ثبت نکرده‌اید.</string>
+    <string name="order_card_title">سفارش #%1$d</string>
+    <string name="order_card_status">وضعیت: %1$s</string>
+    <string name="order_card_total">مجموع: $%1$.2f</string>
+    <string name="order_card_placed_on">ثبت شده در: %1$s</string>
+
+
+    <string name="submit_rating_title">به سفارش خود امتیاز دهید</string>
+    <string name="how_was_your_order_prompt">سفارش شما چطور بود؟</string>
+    <string name="leave_a_comment_label">نظر خود را بنویسید</string>
+    <string name="submit_review_button">ثبت نظر</string>
+
+    <string name="item_image_description">تصویر %1$s</string>
+
+
+    <string name="transaction_type_payment">پرداخت</string>
+    <string name="transaction_type_top_up">شارژ</string>
+    <string name="transaction_type_refund">بازپرداخت</string>
+
+    <string name="food_item_image_description">تصویر %1$s</string>
 </resources>

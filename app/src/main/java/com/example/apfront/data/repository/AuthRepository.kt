@@ -1,9 +1,11 @@
 package com.example.apfront.data.repository
 
+import com.example.apfront.data.remote.dto.ForgotPasswordRequest
 import com.example.apfront.data.remote.dto.LoginRequest
 import com.example.apfront.data.remote.dto.LoginResponse
 import com.example.apfront.data.remote.dto.RegisterRequest
 import com.example.apfront.data.remote.dto.RegisterResponse
+import com.example.apfront.data.remote.dto.ResetPasswordRequest
 import com.example.apfront.data.remote.dto.UpdateProfileRequest
 import com.example.apfront.data.remote.dto.UserDto
 import com.example.apfront.util.Resource
@@ -15,4 +17,6 @@ interface AuthRepository {
     suspend fun getProfile(token: String): Resource<UserDto>
     suspend fun updateProfile(token: String, request: UpdateProfileRequest): Resource<Unit>
     suspend fun logout(token: String): Resource<Unit>
+    suspend fun initiatePasswordReset(request: ForgotPasswordRequest): Resource<Unit>
+    suspend fun completePasswordReset(request: ResetPasswordRequest): Resource<Unit>
 }

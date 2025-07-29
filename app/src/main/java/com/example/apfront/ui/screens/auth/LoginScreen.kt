@@ -27,6 +27,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.example.apfront.R
 import com.example.apfront.util.Resource
 
@@ -35,6 +36,7 @@ import com.example.apfront.util.Resource
 fun LoginScreen(
     onLoginSuccess: (role: String) -> Unit,
     onNavigateToRegister: () -> Unit,
+    navController: NavController,
     viewModel: LoginViewModel = hiltViewModel()
 ) {
     val loginState by viewModel.loginState.collectAsState()
@@ -61,7 +63,7 @@ fun LoginScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { }, // Title is handled by the main text
+                title = { },
                 actions = {
                     var expanded by remember { mutableStateOf(false) }
                     Box {
@@ -117,6 +119,12 @@ fun LoginScreen(
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
+            TextButton(
+                onClick = { navController.navigate("forgot_password") },
+                modifier = Modifier.align(Alignment.End)
+            ) {
+                Text(stringResource(R.string.forgot_password_prompt))
+            }
 
             Spacer(modifier = Modifier.height(48.dp))
 

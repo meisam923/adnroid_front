@@ -11,18 +11,20 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-data class CourierHubUiState(
-    val isLoading: Boolean = false,
-    val availableDeliveries: List<OrderResponse> = emptyList(),
-    val error: String? = null
-)
+sealed interface CourierHubState {
+    object Loading : CourierHubState
+    object NotVerified : CourierHubState
+    data class Success(val deliveries: List<OrderResponse>) : CourierHubState
+    data class Error(val message: String) : CourierHubState
+}
 
 @HiltViewModel
 class CourierHubViewModel @Inject constructor(
     private val repository: CourierRepository,
     private val sessionManager: SessionManager
 ) : ViewModel() {
-    private val _uiState = MutableStateFlow(CourierHubUiState())
+
+    private val _uiState = MutableStateFlow<CourierHubState>(CourierHubState.Loading)
     val uiState = _uiState.asStateFlow()
 
     init {
@@ -31,19 +33,19 @@ class CourierHubViewModel @Inject constructor(
 
     fun loadAvailableDeliveries() {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, error = null) }
+            _uiState.value = CourierHubState.Loading
             val token = sessionManager.getAuthToken() ?: return@launch
+
             when (val result = repository.getAvailableDeliveries(token)) {
                 is Resource.Success -> {
-                    _uiState.update { it.copy(isLoading = false, availableDeliveries = result.data ?: emptyList()) }
+                    _uiState.value = CourierHubState.Success(result.data ?: emptyList())
                 }
                 is Resource.Error -> {
-                    val errorMessage = if (result.message?.contains("verified", ignoreCase = true) == true) {
-                        "Your courier account is not yet verified. Please wait for admin approval."
+                    if (result.message?.contains("verified", ignoreCase = true) == true) {
+                        _uiState.value = CourierHubState.NotVerified
                     } else {
-                        result.message ?: "An unknown error occurred."
+                        _uiState.value = CourierHubState.Error(result.message ?: "An unknown error occurred.")
                     }
-                    _uiState.update { it.copy(isLoading = false, error = errorMessage) }
                 }
                 else -> {}
             }
