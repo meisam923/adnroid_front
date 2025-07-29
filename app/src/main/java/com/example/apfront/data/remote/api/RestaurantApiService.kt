@@ -112,6 +112,12 @@ interface RestaurantApiService {
         @Body request: ReplyReviewDto
     ): Response<Unit>
 
+    @GET("restaurants/{id}/statistics")
+    suspend fun getRestaurantStatistics(
+        @Header("Authorization") token: String,
+        @Path("id") restaurantId: Int
+    ): Response<List<IncomeStatistics>>
+
 
 
 }
