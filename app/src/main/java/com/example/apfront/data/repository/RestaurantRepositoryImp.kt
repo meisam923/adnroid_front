@@ -107,4 +107,8 @@ class RestaurantRepositoryImpl @Inject constructor(
     override suspend fun submitReplyToReview(token: String, reviewId: Long, request: ReplyReviewDto): Resource<Unit> {
         return safeApiCall { api.submitReplyReview("Bearer $token", reviewId, request) }
     }
+    override suspend fun getRestaurantStatistics(token: String, restaurantId: Int): Resource<List<IncomeStatistics>> {
+        return safeApiCall { api.getRestaurantStatistics("Bearer $token", restaurantId) }
+    }
+
 }

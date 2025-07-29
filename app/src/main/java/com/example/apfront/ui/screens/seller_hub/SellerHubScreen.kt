@@ -20,9 +20,7 @@ fun SellerHubScreen(
     navController: NavController,
     viewModel: SellerHubViewModel = hiltViewModel()
 ) {
-    // IMPORTANT: Get the real token you saved after login
 
-    // This effect runs only once when the screen is first displayed
     LaunchedEffect(key1 = Unit) {
         viewModel.checkRestaurantStatus()
     }
@@ -38,13 +36,11 @@ fun SellerHubScreen(
                 CircularProgressIndicator()
             }
             is SellerHubUiState.NoRestaurantFound -> {
-                // If no restaurant exists, show the creation screen
                 CreateRestaurantScreen(onSuccess = {
                     viewModel.checkRestaurantStatus()
                 })
             }
             is SellerHubUiState.Success -> {
-                // If a restaurant exists, check its status and show the correct screen
                 when (state.restaurant.approvalStatus.uppercase()) {
                     "REGISTERED" -> RestaurantManagementScreen(restaurant = state.restaurant, navController = navController)
                     "WAITING" -> WaitingForApprovalScreen(
@@ -53,12 +49,10 @@ fun SellerHubScreen(
                     "REJECTED" -> RestaurantRejectedScreen (
                         onGoBackPressed = { navController.popBackStack() }
                     )
-                    // You can add a screen for "SUSPENDED" here as well
                     else -> Text("Error: Unknown Restaurant Status '${state.restaurant.approvalStatus}'")
                 }
             }
             is SellerHubUiState.Error -> {
-                // Here you would use your translated error message logic
                 val errorMessage = when (state.message) {
                     "error_400_invalid_input" -> stringResource(com.example.apfront.R.string.error_400_invalid_input)
                     "error_401_unauthorized" -> stringResource(com.example.apfront.R.string.error_401_unauthorized)

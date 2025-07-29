@@ -30,7 +30,7 @@ fun RestaurantManagementScreen(restaurant: RestaurantDto,
 navController : NavController
 ) {
     var selectedTabIndex by remember { mutableStateOf(0) }
-    val tabs = listOf("Orders", "Menu & Items", "Restaurant Info")
+    val tabs = listOf("Orders", "Menu & Items","Statistics" ,"Restaurant Info")
 
     Scaffold(
         topBar = {
@@ -71,7 +71,8 @@ navController : NavController
             when (selectedTabIndex) {
                 0 -> OrdersContent(restaurantId = restaurant.id)
                 1 -> MenuItemsContent(restaurantId = restaurant.id, navController = navController, viewModel = hiltViewModel())
-                2 -> RestaurantInfoContent(restaurant = restaurant)
+                2 -> StatisticsScreen(viewModel = hiltViewModel(), restaurantId = restaurant.id)
+                3 -> RestaurantInfoContent(restaurant = restaurant)
             }
         }
     }

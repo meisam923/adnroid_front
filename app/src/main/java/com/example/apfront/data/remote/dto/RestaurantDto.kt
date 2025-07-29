@@ -2,6 +2,7 @@ package com.example.apfront.data.remote.dto
 
 
 import com.google.gson.annotations.SerializedName
+import java.math.BigDecimal
 
 // Data to send when creating a new restaurant
 data class CreateRestaurantRequest(
@@ -103,5 +104,11 @@ data class ReviewDto(
 )
 data class ReplyReviewDto(
     @SerializedName("reply") val reply :String
+)
+
+data class IncomeStatistics(
+    @SerializedName("year") val year :Int,
+    @SerializedName("month") val month :Int,
+    @SerializedName("income") val income :BigDecimal
 )
 
