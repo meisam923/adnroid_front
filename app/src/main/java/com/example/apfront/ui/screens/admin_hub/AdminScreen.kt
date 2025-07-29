@@ -1,4 +1,4 @@
-package com.example.apfront.ui.screens.admin
+package com.example.apfront.ui.screens.admin_hub
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*

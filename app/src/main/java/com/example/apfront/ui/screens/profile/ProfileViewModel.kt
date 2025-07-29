@@ -24,7 +24,6 @@ data class ProfileUiState(
     val user: UserDto? = null,
     val error: String? = null,
     val updateSuccess: Boolean = false,
-    // This will hold the URI of the selected image for preview
     val selectedImageUri: Uri? = null
 )
 
@@ -121,4 +120,5 @@ class ProfileViewModel @Inject constructor(
             sessionManager.clearSession()
         }
     }
+
 }

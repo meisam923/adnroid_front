@@ -9,6 +9,7 @@ import com.example.apfront.data.repository.AuthRepository
 import com.example.apfront.data.repository.CouponRepository
 import com.example.apfront.data.repository.OrderRepository
 import com.example.apfront.data.repository.PaymentRepository
+import com.example.apfront.data.repository.VendorRepository
 import com.example.apfront.util.Resource
 import com.example.apfront.util.SessionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -22,6 +23,7 @@ data class CheckoutUiState(
     val isSubmitting: Boolean = false,
     val profile: UserDto? = null,
     val calculatedBalance: BigDecimal = BigDecimal.ZERO,
+    val restaurantDetails: VendorDetailResponse? = null,
     val couponState: Resource<CouponDto> = Resource.Idle(),
     val orderSubmissionState: Resource<Long?> = Resource.Idle(),
     val deliveryAddress: String = "",
@@ -36,6 +38,7 @@ class CheckoutViewModel @Inject constructor(
     private val couponRepository: CouponRepository,
     private val paymentRepository: PaymentRepository,
     private val authRepository: AuthRepository,
+    private val vendorRepository: VendorRepository,
     private val sessionManager: SessionManager
 ) : ViewModel() {
 
@@ -50,23 +53,31 @@ class CheckoutViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
             val token = sessionManager.getAuthToken() ?: return@launch
+            val vendorId = cartManager.cart.value.firstOrNull()?.item?.vendorId ?: -1
+
+            if (vendorId == -1) {
+                _uiState.update { it.copy(isLoading = false, errorMessage = "Cart is empty or invalid.") }
+                return@launch
+            }
 
             val profileResult = authRepository.getProfile(token)
             val transactionsResult = paymentRepository.getTransactions(token)
+            val restaurantResult = vendorRepository.getVendorDetails(token, vendorId)
 
-            if (profileResult is Resource.Success && transactionsResult is Resource.Success) {
+            if (profileResult is Resource.Success && transactionsResult is Resource.Success && restaurantResult is Resource.Success) {
                 val transactions = transactionsResult.data ?: emptyList()
                 val balance = calculateBalance(transactions)
                 _uiState.update {
                     it.copy(
                         isLoading = false,
                         profile = profileResult.data,
+                        restaurantDetails = restaurantResult.data,
                         deliveryAddress = profileResult.data?.address ?: "",
                         calculatedBalance = balance
                     )
                 }
             } else {
-                _uiState.update { it.copy(isLoading = false, errorMessage = "Failed to load user data.") }
+                _uiState.update { it.copy(isLoading = false, errorMessage = "Failed to load checkout data.") }
             }
         }
     }
@@ -154,12 +165,20 @@ class CheckoutViewModel @Inject constructor(
         }
     }
 
-    private fun calculateTotal(): BigDecimal {
+    fun calculateTotal(): BigDecimal {
         val cart = cartManager.cart.value
+        val restaurant = _uiState.value.restaurantDetails?.vendor
+
         val subtotal = cart.sumOf { it.item.price * it.quantity }.toBigDecimal()
         val coupon = (_uiState.value.couponState as? Resource.Success)?.data
         val discount = coupon?.value ?: BigDecimal.ZERO
-        return (subtotal - discount).coerceAtLeast(BigDecimal.ZERO)
+
+        val tax = restaurant?.taxFee?.toBigDecimal() ?: BigDecimal.ZERO
+        val additional = restaurant?.additionalFee?.toBigDecimal() ?: BigDecimal.ZERO
+        val delivery = BigDecimal("5.00")
+
+        val totalWithFees = subtotal + tax + additional + delivery
+        return (totalWithFees - discount).coerceAtLeast(BigDecimal.ZERO)
     }
 
     fun dismissError() {

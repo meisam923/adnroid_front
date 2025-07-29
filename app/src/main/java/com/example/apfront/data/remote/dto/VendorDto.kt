@@ -15,7 +15,9 @@ data class VendorRestaurantDto(
     val category: String?,
     val rating: Double?,
     @SerializedName("logo_url") val logoUrl: String?,
-    @SerializedName("is_open") val isOpen: Boolean
+    @SerializedName("is_open") val isOpen: Boolean,
+    @SerializedName("tax_fee") val taxFee: Double,
+    @SerializedName("additional_fee") val additionalFee: Double
 )
 
 data class FoodItemDto(

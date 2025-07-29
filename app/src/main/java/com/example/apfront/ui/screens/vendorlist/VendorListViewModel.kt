@@ -80,7 +80,7 @@ class VendorListViewModel @Inject constructor(
     /**
      * The main function to fetch vendors from the API, using the current state.
      */
-    private fun loadVendors(isInitialLoad: Boolean = false) {
+    fun loadVendors(isInitialLoad: Boolean = false) {
         viewModelScope.launch {
             // On initial load, we don't want to show the loading spinner over the whole screen.
             // On subsequent searches, we do.

@@ -4,20 +4,18 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.example.apfront.data.remote.dto.OrderResponse
+import com.example.apfront.R
 import com.example.apfront.ui.screens.orderdetail.OrderSuccessViewModel
-import java.math.BigDecimal
+import com.example.apfront.ui.screens.orderdetail.PriceRow
 
 @Composable
 fun OrderSuccessScreen(
@@ -38,67 +36,44 @@ fun OrderSuccessScreen(
             Icon(
                 imageVector = Icons.Default.CheckCircle,
                 contentDescription = "Success",
-                tint = Color(0xFF4CAF50), // A nice green color
+                tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(120.dp)
             )
             Spacer(modifier = Modifier.height(24.dp))
             Text(
-                text = "Order Placed!",
+                text = stringResource(R.string.order_placed_title),
                 style = MaterialTheme.typography.headlineLarge,
                 fontWeight = FontWeight.Bold
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "Your order #${order.id} has been submitted successfully. You can track its status in the 'My Orders' section.",
+                text = stringResource(R.string.order_success_message, order.id),
                 style = MaterialTheme.typography.bodyLarge,
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Order Summary Card
             Card(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    Text("Order Summary", style = MaterialTheme.typography.titleMedium)
+                    Text(stringResource(R.string.order_summary_label), style = MaterialTheme.typography.titleMedium)
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text("Delivering to: ${order.deliveryAddress}", style = MaterialTheme.typography.bodyMedium)
+                    Text(stringResource(R.string.delivering_to_label, order.deliveryAddress), style = MaterialTheme.typography.bodyMedium)
                     Divider(modifier = Modifier.padding(vertical = 12.dp))
-                    PriceRow2("Total Paid", order.payPrice, isTotal = true)
+                    PriceRow(label = stringResource(R.string.total_paid_label), value = order.payPrice, isTotal = true)
                 }
             }
 
             Spacer(modifier = Modifier.height(32.dp))
             Button(
                 onClick = {
-                    // Navigate back to the home screen and clear all previous screens from history
-                    navController.navigate("home") {
-                        popUpTo(0)
-                    }
+                    navController.navigate("home") { popUpTo(0) }
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Back to Home")
+                Text(stringResource(R.string.back_to_home_button))
             }
         } else {
             Text("Error: Could not load order details.", color = MaterialTheme.colorScheme.error)
         }
-    }
-}
-
-@Composable
-fun PriceRow2(label: String, value: BigDecimal, isTotal: Boolean = false) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Text(
-            text = label,
-            fontWeight = if (isTotal) FontWeight.Bold else FontWeight.Normal,
-            style = if (isTotal) MaterialTheme.typography.titleMedium else MaterialTheme.typography.bodyLarge
-        )
-        Text(
-            text = "$${"%.2f".format(value)}",
-            fontWeight = if (isTotal) FontWeight.Bold else FontWeight.Normal,
-            style = if (isTotal) MaterialTheme.typography.titleMedium else MaterialTheme.typography.bodyLarge
-        )
     }
 }

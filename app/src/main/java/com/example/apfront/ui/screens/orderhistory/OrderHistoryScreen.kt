@@ -8,11 +8,14 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.example.apfront.R
 import com.example.apfront.data.remote.dto.OrderResponse
+import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -21,21 +24,28 @@ fun OrderHistoryScreen(
     viewModel: OrderHistoryViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    Scaffold(topBar = { TopAppBar(title = { Text("My Orders") }) }) { padding ->
+    Scaffold(topBar = { TopAppBar(title = { Text(stringResource(R.string.order_history_title)) }) }) { padding ->
         Box(modifier = Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
             if (uiState.isLoading) {
                 CircularProgressIndicator()
             } else if (uiState.error != null) {
-                Text("Error: ${uiState.error}", color = MaterialTheme.colorScheme.error)
+                Text("${stringResource(R.string.error_prefix)} ${uiState.error}", color = MaterialTheme.colorScheme.error)
             } else if (uiState.orders.isEmpty()) {
-                Text("You haven't placed any orders yet.")
+                Text(stringResource(R.string.no_orders_message))
             } else {
                 LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
                     items(uiState.orders) { order ->
                         OrderHistoryCard(
                             order = order,
                             onClick = { navController.navigate("order_detail/${order.id}") },
-                            onRateClick = { navController.navigate("submit_rating/${order.id}") }
+
+                            onRateClick = {
+                                if (order.reviewId != null) {
+                                    navController.navigate("edit_rating/${order.reviewId}")
+                                } else {
+                                    navController.navigate("submit_rating/${order.id}")
+                                }
+                            }
                         )
                     }
                 }
@@ -46,17 +56,19 @@ fun OrderHistoryScreen(
 
 @Composable
 fun OrderHistoryCard(order: OrderResponse, onClick: () -> Unit, onRateClick: () -> Unit) {
+    val formatter = remember { DateTimeFormatter.ofPattern("MMM dd, yyyy") }
     Card(modifier = Modifier.fillMaxWidth().clickable(onClick = onClick)) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text("Order #${order.id}", style = MaterialTheme.typography.titleMedium)
+            Text(stringResource(R.string.order_card_title, order.id), style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(8.dp))
-            Text("Status: ${order.status}", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
-            Text("Total: $${"%.2f".format(order.payPrice)}", style = MaterialTheme.typography.bodyMedium)
-            Text("Placed on: ${order.createdAt}", style = MaterialTheme.typography.bodySmall)
+            Text(stringResource(R.string.order_card_status, order.status), fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+            Text(stringResource(R.string.order_card_total, order.payPrice), style = MaterialTheme.typography.bodyMedium)
+            Text(stringResource(R.string.order_card_placed_on, order.createdAt.format(formatter)), style = MaterialTheme.typography.bodySmall)
+
             if (order.status.equals("COMPLETED", ignoreCase = true)) {
                 Spacer(modifier = Modifier.height(8.dp))
                 Button(onClick = onRateClick, modifier = Modifier.fillMaxWidth()) {
-                    Text("Rate This Order")
+                    Text(if (order.reviewId != null) stringResource(R.string.view_edit_review_button) else stringResource(R.string.rate_this_order_button))
                 }
             }
         }

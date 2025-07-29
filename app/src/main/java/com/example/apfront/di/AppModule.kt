@@ -3,6 +3,7 @@ package com.example.apfront.di
 import com.example.apfront.data.remote.AuthAuthenticator
 import com.example.apfront.data.remote.api.*
 import com.example.apfront.util.Constants
+import com.example.apfront.util.LocalDateAdapter
 import com.example.apfront.util.LocalDateTimeAdapter
 import com.example.apfront.util.SessionManager
 import com.google.gson.GsonBuilder
@@ -14,6 +15,7 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
@@ -60,7 +62,9 @@ object AppModule {
     fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
         val gson = GsonBuilder()
             .registerTypeAdapter(LocalDateTime::class.java, LocalDateTimeAdapter())
+            .registerTypeAdapter(LocalDate::class.java, LocalDateAdapter()) // Add the new adapter
             .create()
+
         return Retrofit.Builder()
             .baseUrl(Constants.BASE_URL)
             .client(okHttpClient)
@@ -68,7 +72,6 @@ object AppModule {
             .build()
     }
 
-    // --- All of your API service providers are correct ---
     @Provides
     @Singleton
     fun provideAuthApiService(retrofit: Retrofit): AuthApiService = retrofit.create(AuthApiService::class.java)
@@ -112,6 +115,8 @@ object AppModule {
     @Provides
     @Singleton
     fun provideRestaurantApiService(retrofit: Retrofit): RestaurantApiService = retrofit.create(RestaurantApiService::class.java)
+    @Provides @Singleton
+    fun provideNotificationApiService(retrofit: Retrofit): NotificationApiService = retrofit.create(NotificationApiService::class.java)
 
 }
 

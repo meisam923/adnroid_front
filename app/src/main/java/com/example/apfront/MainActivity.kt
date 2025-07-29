@@ -20,6 +20,8 @@ import androidx.navigation.navArgument
 import com.example.apfront.ui.screens.MainScreen
 import com.example.apfront.ui.screens.auth.LoginScreen
 import com.example.apfront.ui.screens.auth.RegisterScreen
+import com.example.apfront.ui.screens.forgotpassword.ForgotPasswordScreen
+import com.example.apfront.ui.screens.resetpassword.ResetPasswordScreen
 import com.example.apfront.ui.theme.ApFrontTheme
 import com.example.apfront.util.LocaleManager
 import dagger.hilt.android.AndroidEntryPoint
@@ -83,6 +85,7 @@ fun AppNavigation(
         navigation(startDestination = "login", route = "auth_flow") {
             composable("login") {
                 LoginScreen(
+                    navController = navController, // Pass the NavController
                     onLoginSuccess = { role ->
                         navController.navigate("main_flow/$role") {
                             popUpTo("auth_flow") { inclusive = true }
@@ -111,6 +114,21 @@ fun AppNavigation(
                 userRole = userRole,
                 rootNavController = navController
             )
+        }
+        composable("forgot_password") {
+            ForgotPasswordScreen(
+                navController = navController,
+                onCodeSent = { email ->
+                    navController.navigate("reset_password/$email")
+                }
+            )
+        }
+        composable(
+            route = "reset_password/{email}",
+            arguments = listOf(navArgument("email") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val email = backStackEntry.arguments?.getString("email") ?: ""
+            ResetPasswordScreen(navController = navController, email = email)
         }
     }
 }

@@ -1,9 +1,11 @@
 package com.example.apfront.data.remote.api
 
+import com.example.apfront.data.remote.dto.ForgotPasswordRequest
 import com.example.apfront.data.remote.dto.LoginRequest
 import com.example.apfront.data.remote.dto.LoginResponse
 import com.example.apfront.data.remote.dto.RegisterRequest
 import com.example.apfront.data.remote.dto.RegisterResponse
+import com.example.apfront.data.remote.dto.ResetPasswordRequest
 import com.example.apfront.data.remote.dto.UpdateProfileRequest
 import com.example.apfront.data.remote.dto.UserDto
 import retrofit2.Response
@@ -33,4 +35,10 @@ interface AuthApiService {
 
     @POST("auth/logout")
     suspend fun logout(@Header("Authorization") token: String): Response<Unit>
+
+    @POST("auth/initiate-reset")
+    suspend fun initiatePasswordReset(@Body request: ForgotPasswordRequest): Response<Unit>
+
+    @POST("auth/complete-reset")
+    suspend fun completePasswordReset(@Body request: ResetPasswordRequest): Response<Unit>
 }

@@ -50,3 +50,5 @@ data class RegisterResponse(
     @SerializedName("access_token") val accessToken: String,
     @SerializedName("refresh_token") val refreshToken: String
 )
+data class ForgotPasswordRequest(val email: String)
+data class ResetPasswordRequest(val email: String, val code: String, @SerializedName("new_password") val newPassword: String)

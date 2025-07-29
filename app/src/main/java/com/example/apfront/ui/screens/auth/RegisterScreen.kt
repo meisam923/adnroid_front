@@ -47,6 +47,8 @@ fun RegisterScreen(
 
     val roles = listOf("BUYER", "SELLER", "COURIER")
     var selectedRole by remember { mutableStateOf(roles[0]) }
+    var isPhoneError by remember { mutableStateOf(false) }
+
 
     LaunchedEffect(registerState) {
         if (registerState is com.example.apfront.util.Resource.Success) {
@@ -106,7 +108,25 @@ fun RegisterScreen(
                     Spacer(modifier = Modifier.height(16.dp))
                     OutlinedTextField(value = fullName, onValueChange = { fullName = it }, label = { Text(stringResource(R.string.full_name_label)) }, leadingIcon = { Icon(Icons.Default.Person, null) }, modifier = Modifier.fillMaxWidth())
                     Spacer(modifier = Modifier.height(16.dp))
-                    OutlinedTextField(value = phone, onValueChange = { phone = it }, label = { Text(stringResource(R.string.phone_number_label)) }, leadingIcon = { Icon(Icons.Default.Phone, null) }, modifier = Modifier.fillMaxWidth(), keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone))
+                    OutlinedTextField(
+                        value = phone,
+                        onValueChange = {
+                            if (it.all { char -> char.isDigit() } && it.length <= 11) {
+                                phone = it
+                                isPhoneError = it.length != 11
+                            }
+                        },
+                        label = { Text(stringResource(R.string.phone_number_label)) },
+                        leadingIcon = { Icon(Icons.Default.Phone, null) },
+                        modifier = Modifier.fillMaxWidth(),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                        isError = isPhoneError,
+                        supportingText = {
+                            if (isPhoneError) {
+                                Text("Phone number must be 11 digits.")
+                            }
+                        }
+                    )
                     Spacer(modifier = Modifier.height(16.dp))
                     OutlinedTextField(value = email, onValueChange = { email = it }, label = { Text(stringResource(R.string.email_optional_label)) }, leadingIcon = { Icon(Icons.Default.Email, null) }, modifier = Modifier.fillMaxWidth())
                     Spacer(modifier = Modifier.height(16.dp))
