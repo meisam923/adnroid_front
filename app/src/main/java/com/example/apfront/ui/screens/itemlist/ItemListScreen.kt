@@ -24,6 +24,7 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.apfront.R
 import com.example.apfront.data.remote.dto.FoodItemDto
+import com.example.apfront.ui.screens.restaurant_dashboard.Base64Image
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -87,7 +88,7 @@ fun FoodItemCard(item: FoodItemDto, onClick: () -> Unit) {
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
-            AsyncImage(
+            /*AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
                     .data("data:image/jpeg;base64," + item.imageUrl)
                     .crossfade(true)
@@ -97,8 +98,13 @@ fun FoodItemCard(item: FoodItemDto, onClick: () -> Unit) {
                 contentDescription = item.name,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.size(80.dp).clip(RoundedCornerShape(8.dp))
+            )*/
+            Base64Image(
+                base64Data = item.imageUrl,
+                modifier = Modifier.size(80.dp).clip(RoundedCornerShape(8.dp)),
+                contentDescription = item.name,
+                contentScale = ContentScale.Crop
             )
-
             Spacer(modifier = Modifier.width(16.dp))
 
             Column(modifier = Modifier.weight(1f)) {

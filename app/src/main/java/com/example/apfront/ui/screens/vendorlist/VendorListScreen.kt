@@ -29,6 +29,7 @@ import coil.request.ImageRequest
 import com.example.apfront.R
 import com.example.apfront.data.remote.dto.VendorRestaurantDto
 import com.example.apfront.ui.components.PullToRefreshLayout
+import com.example.apfront.ui.screens.restaurant_dashboard.Base64Image
 
 @Composable
 fun VendorListScreen(
@@ -105,7 +106,7 @@ fun RestaurantCard(restaurant: VendorRestaurantDto, onClick: () -> Unit) {
         shape = RoundedCornerShape(16.dp)
     ) {
         Column {
-            AsyncImage(
+            /*AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
                     .data(restaurant.logoUrl)
                     .crossfade(true)
@@ -117,6 +118,12 @@ fun RestaurantCard(restaurant: VendorRestaurantDto, onClick: () -> Unit) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(150.dp)
+            )*/
+            Base64Image(
+                base64Data = restaurant.logoUrl,
+                modifier = Modifier.fillMaxWidth().height(150.dp),
+                contentDescription = stringResource(R.string.restaurant_card_image_description, restaurant.name),
+                contentScale = ContentScale.Crop
             )
 
             Column(modifier = Modifier.padding(16.dp)) {

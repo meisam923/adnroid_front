@@ -26,6 +26,7 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.apfront.R
+import com.example.apfront.ui.screens.restaurant_dashboard.Base64Image
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -55,7 +56,7 @@ fun ItemDetailScreen(
             } else if (uiState.item != null) {
                 val item = uiState.item!!
                 Column(modifier = Modifier.fillMaxSize()) {
-                    AsyncImage(
+                    /*AsyncImage(
                         model = ImageRequest.Builder(LocalContext.current)
                             .data("data:image/jpeg;base64," + item.imageUrl)
                             .crossfade(true)
@@ -65,6 +66,12 @@ fun ItemDetailScreen(
                         contentDescription = stringResource(R.string.item_image_description, item.name),
                         contentScale = ContentScale.Crop,
                         modifier = Modifier.fillMaxWidth().height(250.dp)
+                    )*/
+                    Base64Image(
+                        base64Data = item.imageUrl,
+                        contentDescription = stringResource(R.string.item_image_description, item.name),
+                        modifier = Modifier.fillMaxWidth().height(250.dp),
+                        contentScale = ContentScale.Crop
                     )
                     Column(
                         modifier = Modifier
