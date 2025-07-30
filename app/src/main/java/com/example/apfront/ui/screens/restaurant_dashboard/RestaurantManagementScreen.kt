@@ -16,6 +16,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role.Companion.Image
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -23,6 +24,7 @@ import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.apfront.data.remote.dto.RestaurantDto
 import com.example.apfront.R
+import com.example.apfront.util.Resource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -30,7 +32,7 @@ fun RestaurantManagementScreen(restaurant: RestaurantDto,
 navController : NavController
 ) {
     var selectedTabIndex by remember { mutableStateOf(0) }
-    val tabs = listOf("Orders", "Menu & Items","Statistics" ,"Restaurant Info")
+    val tabs = listOf(stringResource(id = R.string.orders),stringResource(id = R.string.menu_and_items),stringResource(id = R.string.statistics),stringResource(id = R.string.restaurant_info))
 
     Scaffold(
         topBar = {
@@ -38,7 +40,7 @@ navController : NavController
                 title = { Row(verticalAlignment = Alignment.CenterVertically) {
                     // --- THIS IS THE NEW IMAGE COMPOSABLE ---
                     Base64Image(base64Data =restaurant.logoBase64,
-                        contentDescription = "Restaurant Logo",
+                        contentDescription = stringResource(id = R.string.restaurant_logo),
                         modifier = Modifier
                             .size(40.dp) // Set a size for the icon
                             .clip(CircleShape), // Make it circular

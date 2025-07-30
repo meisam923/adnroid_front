@@ -73,7 +73,7 @@ fun OrdersContent(
         OutlinedTextField(
             value = searchQuery,
             onValueChange = { searchQuery = it },
-            label = { Text("Search orders...") },
+            label = { Text(stringResource(id = R.string.search)) },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(12.dp),
@@ -95,7 +95,7 @@ fun OrdersContent(
             is OrdersUiState.Success -> {
                 if (state.orders.isEmpty()) {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text("No orders in this category.", color = textColor)
+                        Text(stringResource(id = R.string.no_order_in_this_category), color = textColor)
                     }
                 } else {
                     LazyColumn(
@@ -139,7 +139,7 @@ fun OrdersContent(
 
             is OrdersUiState.Error -> {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("An error occurred. Code: ${state.code}", color = textColor)
+                    Text(stringResource(id = R.string.generic_error), color = textColor)
                 }
             }
         }
@@ -185,9 +185,9 @@ fun OrderCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column {
-                    Text("Order #${order.id}", style = MaterialTheme.typography.titleLarge, color = textColor)
+                    Text("${stringResource(id = R.string.order)} #${order.id}", style = MaterialTheme.typography.titleLarge, color = textColor)
                     Text(
-                        "Status: ${order.restaurantStatus}",
+                        "${stringResource(id = R.string.status)}: ${order.restaurantStatus}",
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.primary
                     )
@@ -204,7 +204,7 @@ fun OrderCard(
                 Column(modifier = Modifier.padding(top = 12.dp)) {
 
                     // Items
-                    SectionHeader("Ordered Items")
+                    SectionHeader(stringResource(id = R.string.ordered_items))
                     Spacer(modifier = Modifier.height(6.dp))
                     order.items.forEach {
                         Row(
@@ -218,30 +218,30 @@ fun OrderCard(
 
                     // Price Breakdown
                     Spacer(modifier = Modifier.height(12.dp))
-                    SectionHeader("Price Breakdown")
+                    SectionHeader(stringResource(id = R.string.price_breakdown))
                     Column(modifier = Modifier.padding(top = 6.dp)) {
-                        Text("Raw: ${order.rawPrice} $", color = textColor)
-                        Text("Tax: ${order.taxFee} $", color = textColor)
-                        Text("Additional: ${order.additionalFee} $", color = textColor)
-                        Text("Courier: ${order.courierFee} $", color = textColor)
+                        Text("${stringResource(id = R.string.raw)}: ${order.rawPrice} $", color = textColor)
+                        Text("${stringResource(id = R.string.taxf)}: ${order.taxFee} $", color = textColor)
+                        Text("${stringResource(id = R.string.additionalf)}: ${order.additionalFee} $", color = textColor)
+                        Text("${stringResource(id = R.string.courierf)}: ${order.courierFee} $", color = textColor)
                     }
 
                     // Address
                     Spacer(modifier = Modifier.height(12.dp))
-                    SectionHeader("Delivery Address", icon = "📍")
+                    SectionHeader(stringResource(id = R.string.delivery_addressR), icon = "📍")
                     Text(order.deliveryAddress, color = textColor, modifier = Modifier.padding(top = 4.dp))
 
                     // Review
                     if (order.restaurantStatus.equals("SERVED", ignoreCase = true)) {
                         order.review?.let { review ->
                             Spacer(modifier = Modifier.height(12.dp))
-                            SectionHeader("Customer Review", icon = "⭐")
+                            SectionHeader(stringResource(id = R.string.customer_reviewr), icon = "⭐")
 
                             review.rating?.let {
-                                Text("Rating: $it / 5", color = textColor)
+                                Text("${stringResource(id = R.string.ratingr)}: $it / 5", color = textColor)
                             }
                             review.comment?.let {
-                                Text("Comment: $it", color = textColor)
+                                Text("${stringResource(id = R.string.commentr)}: $it", color = textColor)
                             }
 
                             val imageList = review.base64Images ?: emptyList()
@@ -250,7 +250,7 @@ fun OrderCard(
                                 HorizontalPager(state = pagerState) { page ->
                                     Base64Image(
                                         base64Data = imageList[page],
-                                        contentDescription = "Review image $page",
+                                        contentDescription = "${stringResource(id = R.string.review_images)} $page",
                                         modifier = Modifier
                                             .padding(vertical = 4.dp)
                                             .height(200.dp)
@@ -261,13 +261,13 @@ fun OrderCard(
 
                             Spacer(modifier = Modifier.height(8.dp))
                             if (!review.reply.isNullOrBlank()) {
-                                Text("💬 Your Reply:", style = MaterialTheme.typography.titleSmall, color = textColor)
+                                Text("💬 ${stringResource(id = R.string.your_reply)}:", style = MaterialTheme.typography.titleSmall, color = textColor)
                                 Text(review.reply!!, color = textColor)
                             } else if (!review.comment.isNullOrBlank()) {
                                 OutlinedTextField(
                                     value = replyText,
                                     onValueChange = { replyText = it },
-                                    label = { Text("Write your reply...") },
+                                    label = { Text(stringResource(id = R.string.write_your_reply____)) },
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .padding(top = 4.dp),
@@ -282,7 +282,7 @@ fun OrderCard(
                                     modifier = Modifier.align(Alignment.End).padding(top = 6.dp),
                                     enabled = replyText.isNotBlank()
                                 ) {
-                                    Text("Send Reply")
+                                    Text(stringResource(id = R.string.send_reply))
                                 }
                             }
                         }
@@ -299,11 +299,11 @@ fun OrderCard(
                 when (order.restaurantStatus.uppercase()) {
                     "BASE" -> {
                         Button(onClick = onAccept) {
-                            Text("Accept")
+                            Text(stringResource(id = R.string.acceptr))
                         }
                         Spacer(modifier = Modifier.width(8.dp))
                         OutlinedButton(onClick = onReject) {
-                            Text("Reject")
+                            Text(stringResource(id = R.string.rejectr))
                         }
                     }
 
@@ -312,7 +312,7 @@ fun OrderCard(
                             onClick = onServe,
                             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))
                         ) {
-                            Text("Mark as Served", color = Color.White)
+                            Text(stringResource(id = R.string.mark_as_served), color = Color.White)
                         }
                     }
                 }

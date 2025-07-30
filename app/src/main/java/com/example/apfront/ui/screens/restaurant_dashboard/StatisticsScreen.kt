@@ -22,8 +22,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.apfront.R
 import com.example.apfront.util.Resource
 
 
@@ -55,7 +57,7 @@ import com.example.apfront.util.Resource
 
                 Column(Modifier.padding(16.dp)) {
                     Text(
-                        text = "Total Income: %f".format(totalIncome),
+                        text = stringResource(id = R.string.total_income, totalIncome),
                         style = MaterialTheme.typography.titleLarge,
                         modifier = Modifier.padding(bottom = 16.dp)
                     )
@@ -68,9 +70,9 @@ import com.example.apfront.util.Resource
                                 elevation = CardDefaults.cardElevation(4.dp)
                             ) {
                                 Column(Modifier.padding(16.dp)) {
-                                    Text("Month: ${stat.year}/${stat.month}", style = MaterialTheme.typography.titleMedium)
+                                    Text("${stringResource(id = R.string.month)}: ${stat.year}/${stat.month}", style = MaterialTheme.typography.titleMedium)
                                     Spacer(Modifier.height(4.dp))
-                                    Text("Income: ${stat.income}", style = MaterialTheme.typography.bodyMedium)
+                                    Text("${stringResource(id = R.string.income)}: ${stat.income}", style = MaterialTheme.typography.bodyMedium)
                                 }
                             }
                         }
@@ -80,7 +82,7 @@ import com.example.apfront.util.Resource
 
             is Resource.Error -> {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("Error: ${resource.message ?: "Something went wrong"}", color = Color.Red)
+                    Text(stringResource(id = R.string.generic_error), color = Color.Red)
                 }
             }
 
