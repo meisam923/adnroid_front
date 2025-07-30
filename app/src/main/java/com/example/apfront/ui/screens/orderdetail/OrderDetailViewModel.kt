@@ -4,7 +4,9 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.apfront.data.remote.dto.OrderResponse
+import com.example.apfront.data.repository.CourierRepository
 import com.example.apfront.data.repository.OrderRepository
+import com.example.apfront.data.remote.dto.UpdateDeliveryStatusRequest
 import com.example.apfront.util.Resource
 import com.example.apfront.util.SessionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,13 +22,15 @@ data class OrderDetailUiState(
 
 @HiltViewModel
 class OrderDetailViewModel @Inject constructor(
-    private val repository: OrderRepository,
+    private val orderRepository: OrderRepository,
+    private val courierRepository: CourierRepository,
     private val sessionManager: SessionManager,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(OrderDetailUiState())
     val uiState = _uiState.asStateFlow()
     private val orderId: Long = checkNotNull(savedStateHandle["orderId"])
+    val userRole: String = sessionManager.getUserRole() ?: "BUYER"
 
     init {
         loadOrderDetails()
@@ -36,7 +40,20 @@ class OrderDetailViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
             val token = sessionManager.getAuthToken() ?: return@launch
-            when (val result = repository.getOrderDetails(token, orderId)) {
+            when (val result = orderRepository.getOrderDetails(token, orderId)) {
+                is Resource.Success -> _uiState.update { it.copy(isLoading = false, order = result.data) }
+                is Resource.Error -> _uiState.update { it.copy(isLoading = false, error = result.message) }
+                else -> {}
+            }
+        }
+    }
+
+    fun updateOrderStatus(newStatus: String) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true) }
+            val token = sessionManager.getAuthToken() ?: return@launch
+            val request = UpdateDeliveryStatusRequest(status = newStatus.lowercase())
+            when (val result = courierRepository.updateDeliveryStatus(token, orderId, request)) {
                 is Resource.Success -> _uiState.update { it.copy(isLoading = false, order = result.data) }
                 is Resource.Error -> _uiState.update { it.copy(isLoading = false, error = result.message) }
                 else -> {}

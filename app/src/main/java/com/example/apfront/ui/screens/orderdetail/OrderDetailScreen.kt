@@ -4,9 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -25,6 +23,7 @@ fun OrderDetailScreen(
     viewModel: OrderDetailViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val userRole = viewModel.userRole
 
     Scaffold(
         topBar = { TopAppBar(title = { Text(stringResource(R.string.order_detail_title, uiState.order?.id ?: 0)) }) }
@@ -38,14 +37,24 @@ fun OrderDetailScreen(
             } else if (uiState.error != null) {
                 Text("Error: ${uiState.error}", color = MaterialTheme.colorScheme.error)
             } else if (uiState.order != null) {
-                OrderDetailContent(order = uiState.order!!, navController = navController)
+                OrderDetailContent(
+                    order = uiState.order!!,
+                    userRole = userRole,
+                    onUpdateStatus = { action -> viewModel.updateOrderStatus(action) },
+                    navController = navController
+                )
             }
         }
     }
 }
 
 @Composable
-fun OrderDetailContent(order: OrderResponse, navController: NavController) {
+fun OrderDetailContent(
+    order: OrderResponse,
+    userRole: String,
+    onUpdateStatus: (String) -> Unit,
+    navController: NavController
+) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
@@ -85,14 +94,50 @@ fun OrderDetailContent(order: OrderResponse, navController: NavController) {
                     PriceRow(stringResource(R.string.price_summary_tax), order.taxFee)
                     PriceRow(stringResource(R.string.price_summary_delivery), order.courierFee)
                     PriceRow(stringResource(R.string.price_summary_additional), order.additionalFee)
-                    Divider(modifier = Modifier.padding(vertical = 8.dp))
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
                     PriceRow(stringResource(R.string.price_summary_total), order.payPrice, isTotal = true)
                 }
             }
         }
 
-        item {
-            if (order.status.equals("COMPLETED", ignoreCase = true)) {
+        if (userRole.uppercase() == "COURIER" ) {
+            item {
+                when (order.status) {
+                    "FINDING_COURIER" -> {
+                        if (order.courierId == null) {
+                            Button(
+                                onClick = { onUpdateStatus("accepted") },
+                                modifier = Modifier.fillMaxWidth().height(50.dp),
+                                shape = RoundedCornerShape(12.dp)
+                            ) {
+                                Text("Accept Order")
+                            }
+                        }
+                    }
+                    "ON_THE_WAY" -> {
+                        Button(
+                            onClick = { onUpdateStatus("received") },
+                            modifier = Modifier.fillMaxWidth().height(50.dp),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Text("Mark as Received")
+                        }
+                    }
+                    "RECEIVED" -> {
+                        Button(
+                            onClick = { onUpdateStatus("delivered") },
+                            modifier = Modifier.fillMaxWidth().height(50.dp),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Text("Mark as Delivered")
+                        }
+                    }
+                }
+            }
+        }
+
+        if (userRole.uppercase() == "BUYER" && order.status.equals("COMPLETED", ignoreCase = true)) {
+            item {
                 Button(
                     onClick = {
                         if (order.reviewId != null) {

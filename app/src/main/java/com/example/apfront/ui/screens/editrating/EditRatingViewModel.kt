@@ -50,28 +50,52 @@ class EditRatingViewModel @Inject constructor(
 
     fun updateRating(ratingValue: Int, comment: String) {
         viewModelScope.launch {
-            _uiState.update { it.copy(isSaving = true) }
-            val token = sessionManager.getAuthToken() ?: return@launch
+            _uiState.update { it.copy(isSaving = true, operationSuccess = false, error = null) } // Reset on new attempt
+            val token = sessionManager.getAuthToken()
+            if (token == null) {
+                _uiState.update { it.copy(isSaving = false, error = "Authentication token not found.") }
+                return@launch
+            }
             val request = UpdateRatingRequest(rating = ratingValue, comment = comment)
-            val result = repository.updateRating(token, ratingId, request)
-            if (result is Resource.Success) {
-                _uiState.update { it.copy(isSaving = false, operationSuccess = true) }
-            } else {
-                _uiState.update { it.copy(isSaving = false, error = result.message) }
+            when (val result = repository.updateRating(token, ratingId, request)) { // Assuming updateRating now returns Resource
+                is Resource.Success -> {
+                    _uiState.update { it.copy(isSaving = false, operationSuccess = true, error = null) }
+                }
+                is Resource.Error -> {
+                    _uiState.update { it.copy(isSaving = false, error = result.message ?: "Failed to update rating.", operationSuccess = false) }
+                }
+
+                is Resource.Idle<*> -> TODO()
+                is Resource.Loading<*> -> TODO()
             }
         }
     }
 
     fun deleteRating() {
         viewModelScope.launch {
-            _uiState.update { it.copy(isDeleting = true) }
-            val token = sessionManager.getAuthToken() ?: return@launch
-            val result = repository.deleteRating(token, ratingId)
-            if (result is Resource.Success) {
-                _uiState.update { it.copy(isDeleting = false, operationSuccess = true) }
-            } else {
-                _uiState.update { it.copy(isDeleting = false, error = result.message) }
+            _uiState.update { it.copy(isDeleting = true, operationSuccess = false, error = null) } // Reset on new attempt
+            val token = sessionManager.getAuthToken()
+            if (token == null) {
+                _uiState.update { it.copy(isDeleting = false, error = "Authentication token not found.") }
+                return@launch
+            }
+            when (val result = repository.deleteRating(token, ratingId)) {
+                is Resource.Success -> {
+                    _uiState.update { it.copy(isDeleting = false, operationSuccess = true, error = null) }
+                }
+                is Resource.Error -> {
+                    _uiState.update { it.copy(isDeleting = false, error = result.message ?: "Failed to delete rating.", operationSuccess = false) }
+                }
+
+                is Resource.Idle<*> -> TODO()
+                is Resource.Loading<*> -> TODO()
             }
         }
+    }
+
+    // Optional: Call this from LaunchedEffect after popBackStack if needed,
+    // or when this screen is navigated away from non-successfully.
+    fun resetOperationStatus() {
+        _uiState.update { it.copy(operationSuccess = false, error = null) }
     }
 }
